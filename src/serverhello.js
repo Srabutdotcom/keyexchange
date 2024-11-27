@@ -1,6 +1,7 @@
 //@ts-self-types="../type/serverhello.d.ts"
 import { Cipher, Constrained, Extension, Struct, Uint8, Uint16, Version, ExtensionType } from "./dep.ts";
-import { KeyShareServerHello, SupportedVersions } from "./dep.ts"
+import { KeyShareServerHello, SupportedVersions, NamedGroup, Selected_version } from "./dep.ts"
+import { selectFirstMatch, selectKeyExchange } from "./utils.js";
 
 export class ServerHello extends Struct {
    legacy_version ;
@@ -9,6 +10,8 @@ export class ServerHello extends Struct {
    cipher_suite;
    legacy_compression_method ; // Uint8 = 0
    extensions;
+   ext={};
+   static fromClient_hello = fromClient_hello;
    static from(array) {
       const copy = Uint8Array.from(array);
       let offset = 0
@@ -42,6 +45,9 @@ export class ServerHello extends Struct {
       this.cipher_suite = cipher_suite;
       this.legacy_compression_method = legacy_compression_method
       this.extensions = extensions;
+      for(const ex of extensions){
+         this.ext[ex.extension_type?.name] = ex.extension_data
+      }
    }
 }
 
@@ -89,4 +95,22 @@ function parseExtension(extension){
       default:
          break;
    } 
+}
+
+function fromClient_hello(clientHello) {
+   const { legacy_session, cipher_suites, ext } = clientHello;
+   const { ciphers } = cipher_suites;
+   const { KEY_SHARE } = ext;
+   const { keyShareEntries } = KEY_SHARE
+   const cipherPreferences = [Cipher.AES_128_GCM_SHA256, Cipher.AES_256_GCM_SHA384, Cipher.CHACHA20_POLY1305_SHA256];
+   const namedGroupPreferences = [NamedGroup.X25519, NamedGroup.SECP256R1, NamedGroup.SECP384R1]
+   const cipher = selectFirstMatch(ciphers, cipherPreferences);
+   const namedGroup = selectKeyExchange(keyShareEntries, namedGroupPreferences)
+
+   return new ServerHello(undefined,legacy_session,cipher,
+      ExtensionType.SUPPORTED_VERSIONS.extension(Selected_version.default()),
+      ExtensionType.KEY_SHARE.extension(KeyShareServerHello.fromKeyShareEntry(
+         namedGroup.group.keyShareEntry()
+      ))
+   )
 }

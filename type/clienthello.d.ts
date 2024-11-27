@@ -1,21 +1,21 @@
 import {
-  Uint8,
-  Uint16,
-  Version,
-  Constrained,
   Cipher,
-  Struct,
+  Constrained,
+  Cookie,
   Extension,
   ExtensionType,
-  NamedGroupList,
-  NamedGroup,
-  RecordSizeLimit,
   KeyShareClientHello,
-  SupportedVersions,
-  ServerNameList,
+  NamedGroup,
+  NamedGroupList,
   PskKeyExchangeModes,
-  Cookie,
+  RecordSizeLimit,
+  ServerNameList,
+  Struct,
   Supported_signature_algorithms,
+  SupportedVersions,
+  Uint16,
+  Uint8,
+  Version,
 } from "../src/dep.ts";
 
 /**
@@ -51,6 +51,9 @@ export class ClientHello extends Struct {
    * TLS extensions included in the ClientHello.
    */
   extensions: Extension[];
+
+  /** Parsed extensions as key-value pairs. The key represents the extension type, and the value represents the parsed Extension. */
+  ext: Record<string, Extension>;
 
   /**
    * Creates a ClientHello instance from a Uint8Array.

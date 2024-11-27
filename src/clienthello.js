@@ -10,6 +10,7 @@ export class ClientHello extends Struct {
    cipher_suites; // offset = 33;
    legacy_compression_methods ; // offset = 33 + cipher_suites.length
    extensions;
+   ext={};
    static from(array) {
       const copy = Uint8Array.from(array);
       let offset = 0
@@ -48,14 +49,17 @@ export class ClientHello extends Struct {
       this.cipher_suites = cipher_suites;
       this.legacy_compression_methods = legacy_compression_methods
       this.extensions = extensions;
+      for(const ex of extensions){
+         this.ext[ex.extension_type?.name] = ex.extension_data
+      }
    }
    static fromServerName(serverName){
       return new ClientHello(undefined, undefined, undefined,
          Uint8Array.of(
-            0,10,0,12,0,10,0,29,0,23,0,24,0,30,0,25,
-            0,13,0,18,0,16,8,6,8,5,8,4,8,7,8,8,6,3,5,3,4,3,
-            0,43,0,3,2,3,4,
-            0,45,0,2,1,1
+            0,10,0,12,0,10,0,29,0,23,0,24,0,30,0,25, // ExtensionType.SUPPORTED_GROUPS.extension(NamedGroupList.default());
+            0,13,0,18,0,16,8,6,8,5,8,4,8,7,8,8,6,3,5,3,4,3, // ExtensionType.SIGNATURE_ALGORITHMS.extension(Supported_signature_algorithms.default());
+            0,43,0,3,2,3,4, // ExtensionType.SUPPORTED_VERSIONS.extension(SupportedVersions.forClient_hello())
+            0,45,0,2,1,1 // ExtensionType.PSK_KEY_EXCHANGE_MODES.extension(PskKeyExchangeModes.default())
          ),
          ExtensionType.SERVER_NAME.extension(ServerNameList.fromName(serverName)),
          ExtensionType.KEY_SHARE.extension(KeyShareClientHello.fromKeyShareEntries(

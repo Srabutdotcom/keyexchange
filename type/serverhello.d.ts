@@ -3,61 +3,59 @@ import {
    Constrained,
    Extension,
    ExtensionType,
-   KeyShareServerHello,
    Struct,
-   SupportedVersions,
    Uint16,
    Uint8,
    Version,
 } from "../src/dep.ts";
+import {
+   KeyShareServerHello,
+   NamedGroup,
+   Selected_version,
+   SupportedVersions,
+} from "../src/dep.ts";
 
 /**
- * Represents a ServerHello message in TLS.
+ * Represents the `ServerHello` structure in TLS.
  */
 export class ServerHello extends Struct {
-   /**
-    * Legacy protocol version.
-    */
+   /** Legacy version of the protocol. */
    legacy_version: Version;
 
-   /**
-    * Random bytes used in the handshake.
-    */
+   /** Random value used in the handshake. */
    random: Uint8Array;
 
-   /**
-    * Echoed legacy session ID.
-    */
+   /** Echoed session ID from the client. */
    legacy_session_id_echo: Legacy_session_id;
 
-   /**
-    * Selected cipher suite.
-    */
+   /** Cipher suite selected for the session. */
    cipher_suite: Cipher;
 
-   /**
-    * Legacy compression method (always 0).
-    */
+   /** Legacy compression method (always 0). */
    legacy_compression_method: Uint8;
 
-   /**
-    * TLS extensions included in the ServerHello message.
-    */
-   extensions: Extension[];
+   /** List of extensions included in the `ServerHello`. */
+   extensions: Extensions;
+
+   /** Parsed extensions as a key-value map. */
+   ext: Record<string, any>;
+
+   /** Static factory to create `ServerHello` from `ClientHello`. */
+   static fromClient_hello(clientHello: any): ServerHello;
 
    /**
-    * Creates a ServerHello instance from a Uint8Array.
-    * @param {Uint8Array} array - The byte array representing the ServerHello message.
-    * @returns {ServerHello} - A new ServerHello instance.
+    * Parses a `ServerHello` instance from a byte array.
+    * @param {Uint8Array} array - The byte array to parse.
+    * @returns {ServerHello} A `ServerHello` instance.
     */
    static from(array: Uint8Array): ServerHello;
 
    /**
-    * Constructs a new ServerHello message.
-    * @param {Uint8Array} [random] - Random bytes (default: 32 random bytes).
-    * @param {Legacy_session_id} legacy_session_id_echo - Echoed legacy session ID.
-    * @param {Cipher} cipher_suite - Selected cipher suite.
-    * @param {...Extension} extensions - List of extensions.
+    * Constructor for `ServerHello`.
+    * @param {Uint8Array} random - Random value (32 bytes).
+    * @param {Legacy_session_id} legacy_session_id_echo - Session ID echo.
+    * @param {Cipher} cipher_suite - Cipher suite.
+    * @param {...Extension[]} extensions - Extensions included in `ServerHello`.
     */
    constructor(
       random?: Uint8Array,
@@ -68,60 +66,63 @@ export class ServerHello extends Struct {
 }
 
 /**
- * Represents extensions in a ServerHello message.
+ * Represents the `Extensions` structure, a constrained list of extensions.
  */
 declare class Extensions extends Constrained {
-   /**
-    * List of extensions in the ServerHello message.
-    */
+   /** Array of extensions. */
    extensions: Extension[];
 
    /**
-    * Creates an Extensions instance from a list of Extension objects.
-    * @param {...Extension} extensions - The list of extensions.
-    * @returns {Extensions} - A new Extensions instance.
+    * Creates an `Extensions` instance from individual extensions.
+    * @param {...Extension[]} extensions - The extensions to include.
+    * @returns {Extensions} A new `Extensions` instance.
     */
    static fromExtension(...extensions: Extension[]): Extensions;
 
    /**
-    * Creates an Extensions instance from a Uint8Array.
-    * @param {Uint8Array} array - The byte array containing the extensions.
-    * @returns {Extensions} - A new Extensions instance.
+    * Parses an `Extensions` instance from a byte array.
+    * @param {Uint8Array} array - The byte array to parse.
+    * @returns {Extensions} An `Extensions` instance.
     */
    static from(array: Uint8Array): Extensions;
 
    /**
-    * Constructs a new Extensions instance.
-    * @param {...Extension} extensions - The list of extensions.
+    * Constructor for `Extensions`.
+    * @param {...Extension[]} extensions - The extensions to include.
     */
    constructor(...extensions: Extension[]);
 }
 
 /**
- * Represents the legacy session ID echoed in a ServerHello message.
+ * Represents the legacy session ID structure.
  */
 declare class Legacy_session_id extends Constrained {
-   /**
-    * Opaque session ID data.
-    */
+   /** Opaque session ID value. */
    opaque: Uint8Array;
 
    /**
-    * Creates a Legacy_session_id instance from a Uint8Array.
-    * @param {Uint8Array} array - The byte array containing the session ID.
-    * @returns {Legacy_session_id} - A new Legacy_session_id instance.
+    * Parses a `Legacy_session_id` instance from a byte array.
+    * @param {Uint8Array} array - The byte array to parse.
+    * @returns {Legacy_session_id} A `Legacy_session_id` instance.
     */
    static from(array: Uint8Array): Legacy_session_id;
 
    /**
-    * Constructs a new Legacy_session_id instance.
-    * @param {Uint8Array} [opaque] - The opaque session ID data (default: empty).
+    * Constructor for `Legacy_session_id`.
+    * @param {Uint8Array} opaque - The session ID (0-32 bytes).
     */
    constructor(opaque?: Uint8Array);
 }
 
 /**
- * Parses an extension in the ServerHello message.
+ * Parses and modifies an extension based on its type.
  * @param {Extension} extension - The extension to parse.
  */
 declare function parseExtension(extension: Extension): void;
+
+/**
+ * Constructs a `ServerHello` instance from a `ClientHello`.
+ * @param {any} clientHello - The `ClientHello` structure.
+ * @returns {ServerHello} A `ServerHello` instance.
+ */
+declare function fromClient_hello(clientHello: any): ServerHello;
