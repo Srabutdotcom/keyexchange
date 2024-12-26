@@ -8,9 +8,10 @@ export function selectFirstMatch(peerArray, preferences){
 }
 
 export function selectKeyExchange(keyShareEntries, preferences){
-   const groups = keyShareEntries.map(e=>e.group);
+   const entries = [...keyShareEntries.values()]
+   const groups = entries.map(e=>e.group);
    const selectedGroup = selectFirstMatch(groups, preferences);
-   return keyShareEntries.filter((item) => {
+   return entries.filter((item) => {
       return item.group.name == selectedGroup.name
    })[0]
 }

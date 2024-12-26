@@ -1,7 +1,7 @@
 //@ts-self-types="../type/serverhello.d.ts"
 import { Cipher, Constrained, Extension, Struct, Uint8, Uint16, Version, ExtensionType } from "./dep.ts";
 import { KeyShareServerHello, SupportedVersions, NamedGroup, Selected_version } from "./dep.ts"
-import { selectFirstMatch, selectKeyExchange } from "./utils.js";
+import { selectKeyExchange } from "./utils.js";
 
 export class ServerHello extends Struct {
    legacy_version ;
@@ -102,9 +102,9 @@ function fromClient_hello(clientHello) {
    const { ciphers } = cipher_suites;
    const { KEY_SHARE } = ext;
    const { keyShareEntries } = KEY_SHARE
-   const cipherPreferences = [Cipher.AES_128_GCM_SHA256, Cipher.AES_256_GCM_SHA384, Cipher.CHACHA20_POLY1305_SHA256];
-   const namedGroupPreferences = [NamedGroup.X25519, NamedGroup.SECP256R1, NamedGroup.SECP384R1]
-   const cipher = selectFirstMatch(ciphers, cipherPreferences);
+   const cipherPreferences = new Set([Cipher.AES_128_GCM_SHA256, Cipher.AES_256_GCM_SHA384, Cipher.CHACHA20_POLY1305_SHA256]);
+   const namedGroupPreferences = new Set([NamedGroup.X25519, NamedGroup.SECP256R1, NamedGroup.SECP384R1])
+   const cipher = cipherPreferences.intersection(ciphers).values().next().value//selectFirstMatch(ciphers, cipherPreferences);
    const namedGroup = selectKeyExchange(keyShareEntries, namedGroupPreferences)
 
    return new ServerHello(undefined,legacy_session,cipher,
