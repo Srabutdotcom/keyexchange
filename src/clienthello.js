@@ -1,10 +1,14 @@
 //@ts-self-types = "../type/clienthello.d.ts"
 import {
-   Uint8, Uint16, Version, Constrained, Cipher, Struct, Extension, ExtensionType,
+   Uint8, Uint16, Uint24, Version, Constrained, Cipher, Struct, 
+   Extension, ExtensionType,
    NamedGroupList, NamedGroup, RecordSizeLimit,
-   KeyShareClientHello, SupportedVersions, ServerNameList, PskKeyExchangeModes, Cookie, Supported_signature_algorithms,
+   KeyShareClientHello, SupportedVersions, ServerNameList, PskKeyExchangeModes, 
+   Cookie, Supported_signature_algorithms,
    HandshakeType,
-   Uint24
+   OfferedPsks,
+   EarlyDataIndication,
+   Padding
 } from "./dep.ts"
 
 export class ClientHello extends Struct {
@@ -145,9 +149,15 @@ function parseExtension(extension) {
       case ExtensionType.RECORD_SIZE_LIMIT: {
          extension.extension_data = RecordSizeLimit.from(extension_data); break;
       }
-      //ExtensionType.EARLY_DATA;
-      //ExtensionType.PADDING;
-      //ExtensionType.PRE_SHARED_KEY
+      case ExtensionType.EARLY_DATA: {
+         extension.extension_data = EarlyDataIndication.from(extension_data); break;
+      }
+      case ExtensionType.PADDING: {
+         extension.extension_data = Padding.from(extension_data); break;
+      }
+      case ExtensionType.PRE_SHARED_KEY: {
+         extension.extension_data = OfferedPsks.from(extension_data); break;
+      }
       default:
          break;
    }

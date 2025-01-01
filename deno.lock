@@ -18,7 +18,7 @@
     "jsr:@tls/extension@~0.1.7": "0.1.7",
     "jsr:@tls/extension@~0.1.8": "0.1.8",
     "jsr:@tls/extension@~0.1.9": "0.1.9",
-    "jsr:@tls/extension@~0.2.3": "0.2.3",
+    "jsr:@tls/extension@~0.2.6": "0.2.6",
     "jsr:@tls/struct@0.3": "0.3.6",
     "jsr:@tls/struct@~0.2.2": "0.2.6",
     "jsr:@tls/struct@~0.2.3": "0.2.3",
@@ -147,8 +147,8 @@
         "jsr:@tls/struct@0.3"
       ]
     },
-    "@tls/extension@0.2.3": {
-      "integrity": "0b04bcda01a72d0f37dba5e91c11cfd901661937dbd242432108e0407abcde88",
+    "@tls/extension@0.2.6": {
+      "integrity": "c94bdb6911c431c0c256088423d9899a5f33d0cbd7cf4c03aef8cd798252fd06",
       "dependencies": [
         "jsr:@tls/enum@~0.4.7",
         "jsr:@tls/struct@~0.3.6"
@@ -354,7 +354,7 @@
     "dependencies": [
       "jsr:@std/assert@^1.0.2",
       "jsr:@tls/enum@~0.4.7",
-      "jsr:@tls/extension@~0.2.3",
+      "jsr:@tls/extension@~0.2.6",
       "jsr:@tls/struct@~0.3.6"
     ]
   }
