@@ -20,7 +20,7 @@ export class ClientHello extends Struct {
    cipher_suites; // offset = 33;
    legacy_compression_methods; // offset = 33 + cipher_suites.length
    extensions;
-   ext = {};
+   ext = new Map;
    static fromHandShake(handshake) {
       const copy = Uint8Array.from(handshake);
       let offset = 0;
@@ -65,9 +65,12 @@ export class ClientHello extends Struct {
       this.legacy_session = legacy_session;
       this.cipher_suites = cipher_suites;
       this.legacy_compression_methods = legacy_compression_methods
+      let offset = legacy_version.length + random.length + legacy_session.length
+         + cipher_suites.length + legacy_compression_methods.length;
       this.extensions = extensions;
       for (const ex of extensions) {
-         this.ext[ex.extension_type?.name] = ex.extension_data
+         this.ext.set(ex.extension_type?.name, {pos: offset + 2, data: ex.extension_data});
+         offset += ex.length;
       }
    }
    static fromServerName(serverName) {
@@ -85,12 +88,17 @@ export class ClientHello extends Struct {
          ))
       )
    }
-   toRecord() { 
+   toRecord() {
       return ContentType.HANDSHAKE.tlsPlainText(
          HandshakeType.CLIENT_HELLO.handshake(this)
-      ) }
-   add(data){ 
-      const array = safeuint8array(this, data);
+      )
+   }
+   addBinders(binders) {
+      const psk = this.ext.get('PRE_SHARED_KEY');
+      const lengthOf = psk.data.length + binders.length;
+      const uint16 = Uint16.fromValue(lengthOf)
+      const array = safeuint8array(this, binders);
+      array.set(uint16, psk.pos + 2); 
       return ClientHello.from(array)
    }
 }

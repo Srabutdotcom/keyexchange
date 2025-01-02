@@ -81,10 +81,10 @@ export class ClientHello extends Struct {
   /**
    * Appends the given data to the current instance and creates a new `ClientHello` object.
    *
-   * @param {Uint8Array} data - The data to be appended. Must be a valid `Uint8Array`.
+   * @param {Uint8Array} binders - The data to be appended. Must be a valid `Uint8Array`.
    * @returns {ClientHello} A new `ClientHello` instance with the combined data.
    */
-  add(data: Uint8Array): ClientHello;
+  addBinders(binders: Uint8Array): ClientHello;
 }
 
 /**
