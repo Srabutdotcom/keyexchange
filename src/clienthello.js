@@ -1,14 +1,15 @@
 //@ts-self-types = "../type/clienthello.d.ts"
 import {
-   Uint8, Uint16, Uint24, Version, Constrained, Cipher, Struct, 
+   Uint8, Uint16, Uint24, Version, Constrained, Cipher, Struct,
    Extension, ExtensionType,
    NamedGroupList, NamedGroup, RecordSizeLimit,
-   KeyShareClientHello, SupportedVersions, ServerNameList, PskKeyExchangeModes, 
+   KeyShareClientHello, SupportedVersions, ServerNameList, PskKeyExchangeModes,
    Cookie, Supported_signature_algorithms,
    HandshakeType,
    OfferedPsks,
    EarlyDataIndication,
-   Padding
+   Padding,
+   ContentType,
 } from "./dep.ts"
 
 export class ClientHello extends Struct {
@@ -83,6 +84,7 @@ export class ClientHello extends Struct {
          ))
       )
    }
+   toRecord() { return ContentType.HANDSHAKE.tlsPlainText(this) }
 }
 
 export class Cipher_suites extends Constrained {
@@ -109,7 +111,7 @@ class Extensions extends Constrained {
       const lengthOf = Uint16.from(copy).value;
       const extensions = [];
       for (let offset = 2; offset < lengthOf + 2;) {
-         if(offset>copy.length-2)break;
+         if (offset > copy.length - 2) break;
          const extension = Extension.from(copy.subarray(offset)); offset += extension.length
          parseExtension(extension);
          extensions.push(extension)

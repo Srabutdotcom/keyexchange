@@ -7,6 +7,7 @@ import {
    Uint16,
    Uint8,
    Version,
+   TLSPlaintext
 } from "../src/dep.ts";
 import {
    KeyShareServerHello,
@@ -63,6 +64,13 @@ export class ServerHello extends Struct {
       cipher_suite?: Cipher,
       ...extensions: Extension[]
    );
+   /**
+   * Converts the current instance into a TLSPlaintext record.
+   * 
+   * @returns {TLSPlaintext} A `TLSPlaintext` object representing the current instance.
+   * The `ContentType` is set to `HANDSHAKE`, and the data is encoded as a plaintext record.
+   */
+   toRecord(): TLSPlaintext;
 }
 
 /**

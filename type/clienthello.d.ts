@@ -4,6 +4,7 @@ import {
   Extension,
   Struct,
   Version,
+  TLSPlaintext
 } from "../src/dep.ts";
 
 /**
@@ -70,6 +71,14 @@ export class ClientHello extends Struct {
    * @returns {ClientHello} - A new ClientHello instance configured for the server name.
    */
   static fromServerName(serverName: string): ClientHello;
+  /**
+   * Converts the current instance into a TLSPlaintext record.
+   * 
+   * @returns {TLSPlaintext} A `TLSPlaintext` object representing the current instance.
+   * The `ContentType` is set to `HANDSHAKE`, and the data is encoded as a plaintext record.
+   */
+  toRecord(): TLSPlaintext;
+
 }
 
 /**
