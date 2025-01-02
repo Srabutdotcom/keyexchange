@@ -10,6 +10,7 @@ import {
    EarlyDataIndication,
    Padding,
    ContentType,
+   safeuint8array,
 } from "./dep.ts"
 
 export class ClientHello extends Struct {
@@ -85,6 +86,10 @@ export class ClientHello extends Struct {
       )
    }
    toRecord() { return ContentType.HANDSHAKE.tlsPlainText(this) }
+   add(data){ 
+      const array = safeuint8array(this, data);
+      return ClientHello.from(array)
+   }
 }
 
 export class Cipher_suites extends Constrained {

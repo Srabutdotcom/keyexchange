@@ -3,8 +3,8 @@ import {
   Constrained,
   Extension,
   Struct,
+  TLSPlaintext,
   Version,
-  TLSPlaintext
 } from "../src/dep.ts";
 
 /**
@@ -73,12 +73,18 @@ export class ClientHello extends Struct {
   static fromServerName(serverName: string): ClientHello;
   /**
    * Converts the current instance into a TLSPlaintext record.
-   * 
+   *
    * @returns {TLSPlaintext} A `TLSPlaintext` object representing the current instance.
    * The `ContentType` is set to `HANDSHAKE`, and the data is encoded as a plaintext record.
    */
   toRecord(): TLSPlaintext;
-
+  /**
+   * Appends the given data to the current instance and creates a new `ClientHello` object.
+   *
+   * @param {Uint8Array} data - The data to be appended. Must be a valid `Uint8Array`.
+   * @returns {ClientHello} A new `ClientHello` instance with the combined data.
+   */
+  add(data: Uint8Array): ClientHello;
 }
 
 /**
