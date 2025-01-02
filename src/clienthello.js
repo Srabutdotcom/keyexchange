@@ -85,7 +85,10 @@ export class ClientHello extends Struct {
          ))
       )
    }
-   toRecord() { return ContentType.HANDSHAKE.tlsPlainText(this) }
+   toRecord() { 
+      return ContentType.HANDSHAKE.tlsPlainText(
+         HandshakeType.CLIENT_HELLO.handshake(this)
+      ) }
    add(data){ 
       const array = safeuint8array(this, data);
       return ClientHello.from(array)
