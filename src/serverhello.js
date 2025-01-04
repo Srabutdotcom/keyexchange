@@ -104,7 +104,7 @@ function fromClient_hello(clientHello) {
    const KEY_SHARE = ext.get('KEY_SHARE');
    const { keyShareEntries } = KEY_SHARE.data;
    const cipherPreferences = new Set([Cipher.AES_128_GCM_SHA256, Cipher.AES_256_GCM_SHA384, Cipher.CHACHA20_POLY1305_SHA256]);
-   const namedGroupPreferences = new Set([NamedGroup.X25519, NamedGroup.SECP256R1, NamedGroup.SECP384R1])
+   const namedGroupPreferences = new Set([NamedGroup.X25519.name, NamedGroup.SECP256R1.name, NamedGroup.SECP384R1.name])
    const cipher = cipherPreferences.intersection(ciphers).values().next().value//selectFirstMatch(ciphers, cipherPreferences);
    const namedGroup = selectKeyExchange(keyShareEntries, namedGroupPreferences)
 

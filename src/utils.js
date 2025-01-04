@@ -9,9 +9,11 @@ export function selectFirstMatch(peerArray, preferences){
 
 export function selectKeyExchange(keyShareEntries, preferences){
    const entries = [...keyShareEntries.values()]
-   const groups = entries.map(e=>e.group);
-   const selectedGroup = selectFirstMatch(groups, preferences);
+   const groups = new Set(entries.map(e=>e.group.name));
+   
+   const selectedGroup = groups.intersection(preferences).values().next().value;//selectFirstMatch(groups, preferences);
+   //return selectedGroup;
    return entries.filter((item) => {
-      return item.group.name == selectedGroup.name
+      return item.group.name == selectedGroup
    })[0]
 }
