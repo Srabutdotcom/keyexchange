@@ -89,7 +89,7 @@ export class ClientHello extends Struct {
       )
    }
    toRecord() {
-      return ContentType.HANDSHAKE.tlsPlainText(
+      return ContentType.HANDSHAKE.tlsPlaintext(
          HandshakeType.CLIENT_HELLO.handshake(this)
       )
    }
