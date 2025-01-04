@@ -92,6 +92,5 @@ const clientHelloPSKBinderBack = ClientHello.fromHandShake(clientHelloPSKBinder)
 const binders = HexaDecimal.fromString(`00 21 20 3a dd 4f b2 d8 fd f8 22 a0 ca
          3c f7 67 8e f5 e8 8d ae 99 01 41 c5 92 4d 57 bb 6f a3 1b 9e 5f
          9d`).byte;
-const clientHelloPsk_0 = clientHelloPSKBinderBack.addBinders(binders)
-
-debugger;
+const clientHelloPsk_0 = clientHelloPSKBinderBack.addBinders(binders);
+const binderPos = clientHelloPsk_0.binderPos();

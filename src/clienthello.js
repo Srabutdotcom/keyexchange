@@ -69,7 +69,7 @@ export class ClientHello extends Struct {
          + cipher_suites.length + legacy_compression_methods.length;
       this.extensions = extensions;
       for (const ex of extensions) {
-         this.ext.set(ex.extension_type?.name, {pos: offset + 2, data: ex.extension_data});
+         this.ext.set(ex.extension_type?.name, { pos: offset + 2, data: ex.extension_data });
          offset += ex.length;
       }
    }
@@ -98,8 +98,12 @@ export class ClientHello extends Struct {
       const lengthOf = psk.data.length + binders.length;
       const uint16 = Uint16.fromValue(lengthOf)
       const array = safeuint8array(this, binders);
-      array.set(uint16, psk.pos + 2); 
+      array.set(uint16, psk.pos + 2);
       return ClientHello.from(array)
+   }
+   binderPos() {
+      const psk = this.ext.get('PRE_SHARED_KEY');
+      return psk.pos + 4 + psk.data.identities.length
    }
 }
 

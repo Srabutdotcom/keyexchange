@@ -85,6 +85,9 @@ export class ClientHello extends Struct {
    * @returns {ClientHello} A new `ClientHello` instance with the combined data.
    */
   addBinders(binders: Uint8Array): ClientHello;
+
+  /** @returns { number } start position of binders   */
+  binderPos(): number;
 }
 
 /**
