@@ -3,6 +3,7 @@
   "specifiers": {
     "jsr:@std/assert@^1.0.2": "1.0.8",
     "jsr:@std/internal@^1.0.5": "1.0.5",
+    "jsr:@tls/enum@0.5": "0.5.0",
     "jsr:@tls/enum@~0.1.6": "0.1.9",
     "jsr:@tls/enum@~0.1.9": "0.1.9",
     "jsr:@tls/enum@~0.2.2": "0.2.4",
@@ -87,6 +88,15 @@
     },
     "@tls/enum@0.4.9": {
       "integrity": "66c699ec3ec336c920bd3f54fc7925bc36bd48bc97a8eda86be807c001faaa81",
+      "dependencies": [
+        "jsr:@tls/struct@~0.3.6",
+        "npm:@noble/curves@^1.7.0",
+        "npm:@noble/hashes",
+        "npm:@peculiar/x509"
+      ]
+    },
+    "@tls/enum@0.5.0": {
+      "integrity": "afc34521c1c7aedab887b2eb145c423e8829c84e8e25a87f479177d02da8909d",
       "dependencies": [
         "jsr:@tls/struct@~0.3.6",
         "npm:@noble/curves@^1.7.0",
@@ -363,7 +373,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@^1.0.2",
-      "jsr:@tls/enum@~0.4.9",
+      "jsr:@tls/enum@0.5",
       "jsr:@tls/extension@~0.2.6",
       "jsr:@tls/struct@~0.3.6"
     ]
