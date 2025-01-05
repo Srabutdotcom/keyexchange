@@ -57,7 +57,7 @@ export class ServerHello extends Struct {
          this.ext[ex.extension_type?.name] = ex.extension_data
       }
    }
-   toRecord() { return ContentType.HANDSHAKE.tlsPlainText(this) }
+   toRecord() { return ContentType.HANDSHAKE.tlsPlaintext(this) }
 }
 
 class Extensions extends Constrained {
