@@ -2,7 +2,7 @@
 import { Cipher, Constrained, Extension, Struct, Uint8, Uint16, Version, ExtensionType } from "./dep.ts";
 import { KeyShareServerHello, SupportedVersions, NamedGroup, Selected_version } from "./dep.ts"
 import { selectKeyExchange } from "./utils.js";
-import { HandshakeType, ContentType } from "./dep.ts";
+import { HandshakeType, ContentType, Uint24 } from "./dep.ts";
 
 export class ServerHello extends Struct {
    legacy_version;
