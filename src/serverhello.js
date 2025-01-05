@@ -2,6 +2,7 @@
 import { Cipher, Constrained, Extension, Struct, Uint8, Uint16, Version, ExtensionType } from "./dep.ts";
 import { KeyShareServerHello, SupportedVersions, NamedGroup, Selected_version } from "./dep.ts"
 import { selectKeyExchange } from "./utils.js";
+import { HandshakeType, ContentType } from "./dep.ts";
 
 export class ServerHello extends Struct {
    legacy_version;
@@ -12,6 +13,13 @@ export class ServerHello extends Struct {
    extensions;
    ext = {};
    static fromClient_hello = fromClient_hello;
+   static fromHandShake(handshake) {
+      const copy = Uint8Array.from(handshake);
+      let offset = 0;
+      const _type = HandshakeType.from(copy); offset += 1;
+      const lengthOf = Uint24.from(copy.subarray(offset)).value; offset += 3;
+      return ServerHello.from(copy.subarray(offset, offset + lengthOf));
+   }
    static from(array) {
       const copy = Uint8Array.from(array);
       let offset = 0
