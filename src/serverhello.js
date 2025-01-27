@@ -60,6 +60,8 @@ export class ServerHello extends Struct {
    toRecord() { return ContentType.HANDSHAKE.tlsPlaintext(
       HandshakeType.SERVER_HELLO.handshake(this)
    ) }
+   get handshake(){ return HandshakeType.SERVER_HELLO.handshake(this) }
+   get record(){ return ContentType.HANDSHAKE.tlsPlaintext(this.handshake) }
 }
 
 class Extensions extends Constrained {

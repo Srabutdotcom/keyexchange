@@ -1,5 +1,5 @@
 import { ClientHello, Cipher_suites } from "../src/clienthello.js";
-import { Cipher, ExtensionType, HexaDecimal, KeyShareServerHello, NamedGroup, NamedGroupList, PskKeyExchangeModes, SupportedVersions } from "../src/dep.ts"
+import { Cipher, ExtensionType, HexaDecimal, KeyShareServerHello, NamedGroup, NamedGroupList, PskKeyExchangeMode, PskKeyExchangeModes, SupportedVersions } from "../src/dep.ts"
 import { assertEquals } from "@std/assert"
 import { selectFirstMatch, selectKeyExchange } from "../src/utils.js";
 import { ServerHello } from "../src/serverhello.js";
@@ -56,9 +56,9 @@ const test = ServerHello.fromClient_hello(clientHelloRFC8448back)
 const clientHello = ClientHello.fromServerName('localhost');
 const clientHelloback = ClientHello.from(clientHello)
 
-const supportedGroup = ExtensionType.SUPPORTED_GROUPS.extension(NamedGroupList.default());
+const supportedGroup = ExtensionType.SUPPORTED_GROUPS.extension(new NamedGroupList(NamedGroup.X25519));
 const signatureAlgorithms = ExtensionType.SIGNATURE_ALGORITHMS.extension(Supported_signature_algorithms.default());
-const pskKeyExchangeModes = ExtensionType.PSK_KEY_EXCHANGE_MODES.extension(PskKeyExchangeModes.default())
+const pskKeyExchangeModes = ExtensionType.PSK_KEY_EXCHANGE_MODES.extension(new PskKeyExchangeModes(PskKeyExchangeMode.PSK_DHE_KE))
 const supportedVersions = ExtensionType.SUPPORTED_VERSIONS.extension(SupportedVersions.forClient_hello())
 
 const clientHelloPSKBinder = HexaDecimal.fromString(

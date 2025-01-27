@@ -93,6 +93,9 @@ export class ClientHello extends Struct {
          HandshakeType.CLIENT_HELLO.handshake(this)
       )
    }
+   get handshake() { return HandshakeType.CLIENT_HELLO.handshake(this) }
+   get record() { return ContentType.HANDSHAKE.tlsPlaintext(this.handshake) }
+
    addBinders(binders) {
       const psk = this.ext.get('PRE_SHARED_KEY');
       const lengthOf = psk.data.length + binders.length;
@@ -130,11 +133,14 @@ class Extensions extends Constrained {
       const copy = Uint8Array.from(array);
       const lengthOf = Uint16.from(copy).value;
       const extensions = [];
-      for (let offset = 2; offset < lengthOf + 2;) {
-         if (offset > copy.length - 2) break;
+      let offset = 2;
+      //for (let offset = 2; offset < lengthOf + 2;) {
+      while (true) {
          const extension = Extension.from(copy.subarray(offset)); offset += extension.length
          parseExtension(extension);
          extensions.push(extension)
+         if (offset >= lengthOf) break;
+         if (offset >= copy.length) break;
       }
       return new Extensions(...extensions)
    }
@@ -160,7 +166,7 @@ function parseExtension(extension) {
          extension.extension_data = Supported_signature_algorithms.from(extension_data); break;
       }
       case ExtensionType.SERVER_NAME: {
-         extension.extension_data = ServerNameList.from(extension_data); break;
+         extension.extension_data = extension_data.length ? ServerNameList.from(extension_data) : extension_data; break;
       }
       case ExtensionType.PSK_KEY_EXCHANGE_MODES: {
          extension.extension_data = PskKeyExchangeModes.from(extension_data); break;
