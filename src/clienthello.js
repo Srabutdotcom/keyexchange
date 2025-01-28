@@ -28,6 +28,7 @@ export class ClientHello extends Struct {
       const lengthOf = Uint24.from(copy.subarray(offset)).value; offset += 3;
       return ClientHello.from(copy.subarray(offset, offset + lengthOf));
    }
+   static fromHandshake = ClientHello.fromHandShake
    static from(array) {
       const copy = Uint8Array.from(array);
       let offset = 0

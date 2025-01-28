@@ -20,13 +20,14 @@ export class ServerHello extends Struct {
       const lengthOf = Uint24.from(copy.subarray(offset)).value; offset += 3;
       return ServerHello.from(copy.subarray(offset, offset + lengthOf));
    }
+   static fromHandshake = ServerHello.fromHandShake;
    static from(array) {
       const copy = Uint8Array.from(array);
       let offset = 0
       const _legacy_version = Version.from(copy.subarray(offset)); offset += 2;
       const random = copy.subarray(offset, offset + 32); offset += 32;
       const legacy_session_id_echo = Legacy_session_id.from(copy.subarray(offset)); offset += legacy_session_id_echo.length;
-      const cipher_suite = Cipher.from(copy.subarray(offset)).Uint16; offset += cipher_suite.length;
+      const cipher_suite = Cipher.from(copy.subarray(offset)); offset += cipher_suite.length;
       const _legacy_compression_methods = Uint8.from(copy.subarray(offset)); offset += _legacy_compression_methods.length;
       const extensions = Extensions.from(copy.subarray(offset));
       return new ServerHello(random, legacy_session_id_echo, cipher_suite, ...extensions.extensions)
@@ -43,7 +44,7 @@ export class ServerHello extends Struct {
          legacy_version,
          random,
          legacy_session_id_echo,
-         cipher_suite,
+         cipher_suite.byte,
          legacy_compression_method,
          Extensions.fromExtension(...extensions)
       )
