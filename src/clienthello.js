@@ -32,29 +32,26 @@ export class ClientHello extends Struct {
    static from(array) {
       const copy = Uint8Array.from(array);
       let offset = 0
-      const _legacy_version = Version.from(copy.subarray(offset)); offset += 2;
+      const legacy_version = Version.from(copy.subarray(offset)); offset += 2;
       const random = copy.subarray(offset, offset + 32); offset += 32;
       const legacy_session = Legacy_session_id.from(copy.subarray(offset)); offset += legacy_session.length;
       const cipher_suites = Cipher_suites.from(copy.subarray(offset)); offset += cipher_suites.length;
       const _legacy_compression_methods = Legacy_compression_methods.from(copy.subarray(offset)); offset += _legacy_compression_methods.length;
       const extensions = Extensions.from(copy.subarray(offset));
-      return new ClientHello(random, legacy_session, cipher_suites, ...extensions.extensions)
+      return new ClientHello(legacy_version, random, legacy_session, cipher_suites, ...extensions.extensions)
    }
    constructor(
+      legacy_version = Version.legacy.protocolVersion(),
       random = crypto.getRandomValues(new Uint8Array(32)),
       legacy_session = new Legacy_session_id,
       cipher_suites = new Cipher_suites(Cipher.AES_128_GCM_SHA256, Cipher.AES_256_GCM_SHA384),
       ...extensions
    ) {
 
-      const legacy_version = Version.legacy.protocolVersion();
-      //const random = crypto.getRandomValues(new Uint8Array(32));
-      // const legacy_session = new Legacy_session_id;
-      //const cipher_suites = new Cipher_suites(Cipher.AES_128_GCM_SHA256, Cipher.AES_256_GCM_SHA384);
       const legacy_compression_methods = new Legacy_compression_methods;
 
       super(
-         legacy_version,
+         legacy_version instanceof Uint8Array ? legacy_version : legacy_version.Uint16,
          random,
          legacy_session,
          cipher_suites,
@@ -75,7 +72,7 @@ export class ClientHello extends Struct {
       }
    }
    static fromServerName(serverName) {
-      return new ClientHello(undefined, undefined, undefined,
+      return new ClientHello(undefined, undefined, undefined, undefined,
          Uint8Array.of(
             0, 10, 0, 12, 0, 10, 0, 29, 0, 23, 0, 24, 0, 30, 0, 25, // ExtensionType.SUPPORTED_GROUPS.extension(NamedGroupList.default());
             0, 13, 0, 18, 0, 16, 8, 6, 8, 5, 8, 4, 8, 7, 8, 8, 6, 3, 5, 3, 4, 3, // ExtensionType.SIGNATURE_ALGORITHMS.extension(Supported_signature_algorithms.default());
