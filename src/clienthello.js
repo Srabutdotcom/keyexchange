@@ -9,8 +9,8 @@ import {
    OfferedPsks,
    EarlyDataIndication,
    Padding,
-   ContentType,
    safeuint8array,
+   Handshake,
 } from "./dep.ts"
 
 export class ClientHello extends Struct {
@@ -89,13 +89,9 @@ export class ClientHello extends Struct {
          ))
       )
    }
-   toRecord() {
-      return ContentType.HANDSHAKE.tlsPlaintext(
-         HandshakeType.CLIENT_HELLO.handshake(this)
-      )
-   }
-   get handshake() { return HandshakeType.CLIENT_HELLO.handshake(this) }
-   get record() { return ContentType.HANDSHAKE.tlsPlaintext(this.handshake) }
+
+   get handshake() { return new Handshake(HandshakeType.CLIENT_HELLO, this) }
+   get record() { return this.handshake.record }
 
    addBinders(binders) {
       const psk = this.ext.get('PRE_SHARED_KEY');

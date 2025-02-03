@@ -4,89 +4,90 @@ import {
   Extension,
   Struct,
   TLSPlaintext,
-  Version,
+  Version, Handshake
 } from "../src/dep.ts";
 
 /**
- * Represents a ClientHello message in TLS.
+ * Represents a TLS 1.3 ClientHello message.
+ *
+ * This class constructs, parses, and manages the ClientHello message in the TLS handshake.
  */
 export class ClientHello extends Struct {
-  /**
-   * Legacy protocol version.
-   */
   legacy_version: Version;
-
-  /**
-   * Random bytes used in the handshake.
-   */
   random: Uint8Array;
-
-  /**
-   * Legacy session ID.
-   */
   legacy_session: Legacy_session_id;
-
-  /**
-   * Supported cipher suites.
-   */
   cipher_suites: Cipher_suites;
-
-  /**
-   * Legacy compression methods.
-   */
   legacy_compression_methods: Legacy_compression_methods;
+  extensions: Extensions;
+  ext: Map<string, { pos: number; data: Uint8Array }>;
 
   /**
-   * TLS extensions included in the ClientHello.
+   * Parses a `ClientHello` message from a `Handshake` byte array.
+   * @param {Uint8Array} handshake - The raw handshake message.
+   * @returns {ClientHello} The parsed `ClientHello` instance.
    */
-  extensions: Extension[];
-
-  /** Parsed extensions as key-value pairs. The key represents the extension type, and the value represents the parsed Extension. */
-  ext: Record<string, Extension>;
+  static fromHandShake(handshake: Uint8Array): ClientHello;
 
   /**
-   * Creates a ClientHello instance from a Uint8Array.
-   * @param {Uint8Array} array - The byte array representing the ClientHello message.
-   * @returns {ClientHello} - A new ClientHello instance.
+   * Alias for `fromHandShake`.
+   */
+  static fromHandshake: typeof ClientHello.fromHandShake;
+
+  /**
+   * Parses a `ClientHello` from a raw `Uint8Array`.
+   * @param {Uint8Array} array - The raw TLS message.
+   * @returns {ClientHello} The parsed `ClientHello` instance.
    */
   static from(array: Uint8Array): ClientHello;
 
   /**
-   * Constructs a new ClientHello message.
-   * @param {Uint8Array} [random] - Random bytes (default: 32 random bytes).
-   * @param {Legacy_session_id} [legacy_session] - Legacy session ID.
-   * @param {Cipher_suites} [cipher_suites] - Supported cipher suites.
-   * @param {Extension[]} [extensions] - TLS extensions.
+   * Constructs a new `ClientHello` message.
+   *
+   * @param {Uint8Array} [random] - A 32-byte random value.
+   * @param {Legacy_session_id} [legacy_session] - The session ID.
+   * @param {Cipher_suites} [cipher_suites] - The supported cipher suites.
+   * @param {...Extensions[]} extensions - The optional extensions.
    */
   constructor(
     random?: Uint8Array,
     legacy_session?: Legacy_session_id,
     cipher_suites?: Cipher_suites,
-    ...extensions: Extension[]
+    ...extensions: Extensions[]
   );
 
   /**
-   * Creates a ClientHello message for a specific server name.
-   * @param {string} serverName - The server name.
-   * @returns {ClientHello} - A new ClientHello instance configured for the server name.
+   * Creates a `ClientHello` instance with a specific server name extension.
+   *
+   * @param {string} serverName - The server name to include in the extension.
+   * @returns {ClientHello} A `ClientHello` with the server name extension.
    */
   static fromServerName(serverName: string): ClientHello;
+
   /**
-   * Converts the current instance into a TLSPlaintext record.
-   *
-   * @returns {TLSPlaintext} A `TLSPlaintext` object representing the current instance.
-   * The `ContentType` is set to `HANDSHAKE`, and the data is encoded as a plaintext record.
+   * Converts the `ClientHello` into a `Handshake` message.
+   * @returns {Handshake} The handshake message.
    */
-  toRecord(): TLSPlaintext;
+  get handshake(): Handshake;
+
   /**
-   * Appends the given data to the current instance and creates a new `ClientHello` object.
+   * Converts the `ClientHello` into a `TLSPlaintext` record.
+   * @returns {TLSPlaintext} The TLS record.
+   */
+  get record(): TLSPlaintext;
+
+  /**
+   * Adds PSK binders to the ClientHello.
    *
-   * @param {Uint8Array} binders - The data to be appended. Must be a valid `Uint8Array`.
-   * @returns {ClientHello} A new `ClientHello` instance with the combined data.
+   * @param {Uint8Array} binders - The PSK binders.
+   * @returns {ClientHello} A new `ClientHello` with the binders added.
    */
   addBinders(binders: Uint8Array): ClientHello;
 
-  /** @returns { number } start position of binders   */
+  /**
+   * Gets the position of the PSK binder within the message.
+   *
+   * @returns {number} The position of the binder.
+   */
   binderPos(): number;
 }
 

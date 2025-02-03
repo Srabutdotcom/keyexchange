@@ -2,7 +2,7 @@
 import { Cipher, Constrained, Extension, Struct, Uint8, Uint16, Version, ExtensionType } from "./dep.ts";
 import { KeyShareServerHello, SupportedVersions, NamedGroup, Selected_version } from "./dep.ts"
 import { selectKeyExchange } from "./utils.js";
-import { HandshakeType, ContentType, Uint24 } from "./dep.ts";
+import { HandshakeType, Uint24 } from "./dep.ts";
 
 export class ServerHello extends Struct {
    legacy_version;
@@ -58,11 +58,8 @@ export class ServerHello extends Struct {
          this.ext[ex.extension_type?.name] = ex.extension_data
       }
    }
-   toRecord() { return ContentType.HANDSHAKE.tlsPlaintext(
-      HandshakeType.SERVER_HELLO.handshake(this)
-   ) }
-   get handshake(){ return HandshakeType.SERVER_HELLO.handshake(this) }
-   get record(){ return ContentType.HANDSHAKE.tlsPlaintext(this.handshake) }
+   get handshake() { return new Handshake(HandshakeType.SERVER_HELLO, this) }
+   get record() { return this.handshake.record }
 }
 
 class Extensions extends Constrained {
@@ -84,7 +81,7 @@ class Extensions extends Constrained {
    }
 }
 
-class Legacy_session_id extends Constrained {
+export class Legacy_session_id extends Constrained {
    static from(array) {
       const copy = Uint8Array.from(array);
       const lengthOf = Uint8.from(copy).value;
@@ -117,14 +114,14 @@ function fromClient_hello(clientHello) {
    const KEY_SHARE = ext.get('KEY_SHARE');
    const { keyShareEntries } = KEY_SHARE.data;
    const cipherPreferences = new Set([Cipher.AES_128_GCM_SHA256, Cipher.AES_256_GCM_SHA384, Cipher.CHACHA20_POLY1305_SHA256]);
-   const namedGroupPreferences = new Set([NamedGroup.X25519.name, NamedGroup.SECP256R1.name, NamedGroup.SECP384R1.name])
+   const namedGroupPreferences = new Set([NamedGroup.X25519, NamedGroup.SECP256R1, NamedGroup.SECP384R1])
    const cipher = cipherPreferences.intersection(ciphers).values().next().value//selectFirstMatch(ciphers, cipherPreferences);
    const namedGroup = selectKeyExchange(keyShareEntries, namedGroupPreferences)
 
    return new ServerHello(undefined, legacy_session, cipher,
       ExtensionType.SUPPORTED_VERSIONS.extension(Selected_version.default()),
       ExtensionType.KEY_SHARE.extension(KeyShareServerHello.fromKeyShareEntry(
-         namedGroup.group.keyShareEntry()
+         namedGroup.keyShareEntry()
       ))
    )
 }
