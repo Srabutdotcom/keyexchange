@@ -49,6 +49,7 @@ export class ClientHello extends Struct {
    * @param {...Extensions[]} extensions - The optional extensions.
    */
   constructor(
+    legacy_version: Version,
     random?: Uint8Array,
     legacy_session?: Legacy_session_id,
     cipher_suites?: Cipher_suites,
