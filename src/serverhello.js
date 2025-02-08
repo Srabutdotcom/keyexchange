@@ -1,96 +1,90 @@
 //@ts-self-types="../type/serverhello.d.ts"
-import { Cipher, Constrained, Extension, Struct, Uint8, Uint16, Version, ExtensionType } from "./dep.ts";
-import { KeyShareServerHello, SupportedVersions, NamedGroup, Selected_version } from "./dep.ts"
-import { selectKeyExchange } from "./utils.js";
-import { HandshakeType, Uint24, Handshake } from "./dep.ts";
+import { Cipher, ContentType, Extension, ExtensionType, HandshakeType, KeyShareServerHello, SupportedVersions, Uint16, Uint24, Version } from "./dep.ts";
 
-export class ServerHello extends Struct {
-   legacy_version;
-   random;
-   legacy_session_id_echo;
-   cipher_suite;
-   legacy_compression_method; // Uint8 = 0
-   extensions;
-   ext = {};
-   static fromClient_hello = fromClient_hello;
-   static fromHandShake(handshake) {
-      const copy = Uint8Array.from(handshake);
-      let offset = 0;
-      const _type = HandshakeType.from(copy); offset += 1;
-      const lengthOf = Uint24.from(copy.subarray(offset)).value; offset += 3;
-      return ServerHello.from(copy.subarray(offset, offset + lengthOf));
+
+export class ServerHello extends Uint8Array {
+   #legacy_version // 0x0303;    /* TLS v1.2 */
+   #random
+   #legacy_session_id_echo
+   #cipher_suite
+   #legacy_compression_method
+   #extensions
+   static create(...args){
+      return new ServerHello(...args)
    }
-   static fromHandshake = ServerHello.fromHandShake;
-   static from(array) {
-      const copy = Uint8Array.from(array);
-      let offset = 0
-      const _legacy_version = Version.from(copy.subarray(offset)); offset += 2;
-      const random = copy.subarray(offset, offset + 32); offset += 32;
-      const legacy_session_id_echo = Legacy_session_id.from(copy.subarray(offset)); offset += legacy_session_id_echo.length;
-      const cipher_suite = Cipher.from(copy.subarray(offset)); offset += cipher_suite.length;
-      const _legacy_compression_methods = Uint8.from(copy.subarray(offset)); offset += _legacy_compression_methods.length;
-      const extensions = Extensions.from(copy.subarray(offset));
-      return new ServerHello(random, legacy_session_id_echo, cipher_suite, ...extensions.extensions)
+   static from = ServerHello.create
+   constructor(...args) {
+      args = (args.at(0) instanceof Uint8Array) ? sanitize(...args) : args
+      super(...args)
    }
-   constructor(
-      random = crypto.getRandomValues(new Uint8Array(32)),
-      legacy_session_id_echo,
-      cipher_suite,
-      ...extensions
-   ) {
-      const legacy_version = Version.legacy.protocolVersion();
-      const legacy_compression_method = Uint8.fromValue(0);
-      super(
-         legacy_version,
-         random,
-         legacy_session_id_echo,
-         cipher_suite.byte,
-         legacy_compression_method,
-         Extensions.fromExtension(...extensions)
-      )
-      this.legacy_version = legacy_version;
-      this.random = random;
-      this.legacy_session_id_echo = legacy_session_id_echo;
-      this.cipher_suite = cipher_suite;
-      this.legacy_compression_method = legacy_compression_method
-      this.extensions = extensions;
-      for (const ex of extensions) {
-         this.ext[ex.extension_type?.name] = ex.extension_data
+   get version() {
+      this.#legacy_version ||= Version.from(this.subarray(0, 2))
+      return this.#legacy_version
+   }
+   get random() {
+      this.#random ||= this.subarray(2, 34);
+      return this.#random;
+   }
+   get legacy_session_id() {
+      if (this.#legacy_session_id_echo) return this.#legacy_session_id_echo
+      const lengthOf = this.at(34);
+      if (lengthOf == 0) {
+         this.#legacy_session_id_echo = this.subarray(34, 35);
+      } else {
+         this.#legacy_session_id_echo = this.subarray(35, 35 + lengthOf)
       }
+      return this.#legacy_session_id_echo
    }
-   get handshake() { return new Handshake(HandshakeType.SERVER_HELLO, this) }
-   get record() { return this.handshake.record }
-}
-
-class Extensions extends Constrained {
-   static fromExtension(...extensions) { return new Extensions(...extensions) }
-   static from(array) {
-      const copy = Uint8Array.from(array);
+   get cipher() {
+      this.#cipher_suite ||= Cipher.from(this.subarray(35 + this.at(34)));
+      return this.#cipher_suite;
+   }
+   get legacy_compression_methods() {
+      const start = 35 + this.at(34) + 2
+      this.#legacy_compression_method ||= this.subarray(start, start + 1)
+      return this.#legacy_compression_method
+   }
+   get extensions() {
+      if (this.#extensions) return this.#extensions;
+      const copy = this.subarray(34 + this.legacy_session_id.length + this.cipher.length + 1)
       const lengthOf = Uint16.from(copy).value;
-      const extensions = [];
+      const output = new Map;
       for (let offset = 2; offset < lengthOf + 2;) {
          const extension = Extension.from(copy.subarray(offset)); offset += extension.length
          parseExtension(extension);
-         extensions.push(extension)
+         output.set(extension.extension_type, extension.extension_data)
       }
-      return new Extensions(...extensions)
-   }
-   constructor(...extensions) {
-      super(8, 2 ** 16 - 1, ...extensions)
-      this.extensions = extensions
+      this.#extensions ||= output;
+      return this.#extensions
    }
 }
 
-export class Legacy_session_id extends Constrained {
-   static from(array) {
-      const copy = Uint8Array.from(array);
-      const lengthOf = Uint8.from(copy).value;
-      if (lengthOf == 0) return new Legacy_session_id;
-      return new Legacy_session_id(copy.subarray(1, 1 + lengthOf))
-   }
-   constructor(opaque = new Uint8Array) {
-      super(0, 32, opaque)
-      this.opaque = opaque
+function sanitize(...args) {
+   try {
+      if (Version.from(...args) instanceof Version) return args
+      throw Error
+   } catch (_error) {
+      try {
+         if (HandshakeType.from(args[0]) == HandshakeType.SERVER_HELLO) {
+            const lengthOf = Uint24.from(args[0].subarray(1)).value;
+            return [args[0].subarray(4, 4 + lengthOf)]
+         }
+         throw Error
+      } catch (_error) {
+         try {
+            const contentType = ContentType.from(args[0]);
+            const handshakeType = HandshakeType.from(args[0].subarray(5));
+            const lengthOf = Uint24.from(args[0].subarray(6)).value;
+            const conditions = [
+               contentType == ContentType.HANDSHAKE,
+               handshakeType == HandshakeType.SERVER_HELLO
+            ]
+            if (conditions.every(e => e == true)) return [args[0].subarray(9, 9 + lengthOf)]
+            throw Error;
+         } catch (error) {
+            throw error;
+         }
+      }
    }
 }
 
@@ -108,20 +102,3 @@ function parseExtension(extension) {
    }
 }
 
-function fromClient_hello(clientHello) {
-   const { legacy_session, cipher_suites, ext } = clientHello;
-   const { ciphers } = cipher_suites;
-   const KEY_SHARE = ext.get('KEY_SHARE');
-   const { keyShareEntries } = KEY_SHARE.data;
-   const cipherPreferences = new Set([Cipher.AES_128_GCM_SHA256, Cipher.AES_256_GCM_SHA384, Cipher.CHACHA20_POLY1305_SHA256]);
-   const namedGroupPreferences = new Set([NamedGroup.X25519, NamedGroup.SECP256R1, NamedGroup.SECP384R1])
-   const cipher = cipherPreferences.intersection(ciphers).values().next().value//selectFirstMatch(ciphers, cipherPreferences);
-   const namedGroup = selectKeyExchange(keyShareEntries, namedGroupPreferences)
-
-   return new ServerHello(undefined, legacy_session, cipher,
-      ExtensionType.SUPPORTED_VERSIONS.extension(Selected_version.default()),
-      ExtensionType.KEY_SHARE.extension(KeyShareServerHello.fromKeyShareEntry(
-         namedGroup.keyShareEntry()
-      ))
-   )
-}

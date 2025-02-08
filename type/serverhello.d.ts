@@ -1,10 +1,7 @@
 import {
    Cipher,
-   Struct,
-   Uint8,
    Version,
-   TLSPlaintext,
-   Handshake
+   ExtensionType
 } from "../src/dep.ts";
 
 import { ClientHello } from "../src/clienthello.js";
@@ -15,50 +12,84 @@ export type Legacy_session_id = Uint8Array;
 /**
  * Represents a ServerHello message.
  */
-export class ServerHello extends Struct {
-   legacy_version: Version;
-   random: Uint8Array;
-   legacy_session_id_echo: Legacy_session_id;
-   cipher_suite: Cipher;
-   legacy_compression_method: Uint8;
-   extensions: any[];
-   ext: Record<string, any>;
-
-   static fromClient_hello: (clientHello: ClientHello) => ServerHello;
-
+export class ServerHello extends Uint8Array {
+   #legacy_version: Version | null ;
+   #random: Uint8Array | null ;
+   #legacy_session_id_echo: Uint8Array | null ;
+   #cipher_suite: Cipher | null ;
+   #legacy_compression_method: Uint8Array | null ;
+   #extensions: Map<ExtensionType, any> | null ;
+ 
    /**
-    * Parses a ServerHello from a Handshake message.
-    * @param handshake - The Handshake message.
-    * @returns A new ServerHello instance.
+    * Creates a new ServerHello instance.
+    * @static
+    * @param {...any[]} args - The arguments to create the ServerHello.
+    *   - If a single Uint8Array is provided, it will be sanitized and used to create the new instance.
+    *   - Otherwise, the arguments are treated as byte values.
+    * @returns {ServerHello} A new ServerHello instance.
     */
-   static fromHandShake(handshake: Uint8Array): ServerHello;
-
-   static fromHandshake: typeof ServerHello.fromHandShake;
-
+   static create(...args: any[]): ServerHello;
+ 
    /**
-    * Parses a ServerHello from a raw byte array.
-    * @param array - The input Uint8Array.
-    * @returns A new ServerHello instance.
+    * Creates a new ServerHello instance (alias for `create`).
+    * @static
+    * @param {...any[]} args - The arguments to create the ServerHello.
+    *   - If a single Uint8Array is provided, it will be sanitized and used to create the new instance.
+    *   - Otherwise, the arguments are treated as byte values.
+    * @returns {ServerHello} A new ServerHello instance.
     */
-   static from(array: Uint8Array): ServerHello;
-
-   constructor(
-      random?: Uint8Array,
-      legacy_session_id_echo?: Legacy_session_id,
-      cipher_suite?: Cipher,
-      ...extensions: any[]
-   );
-
+   static from(...args: any[]): ServerHello;
+ 
    /**
-    * Gets the handshake message.
+    * Constructs a new ServerHello instance.
+    * @param {...any[]} args - The arguments to create the ServerHello.
+    *   - If a single Uint8Array is provided, it will be sanitized and used to create the new instance.
+    *   - Otherwise, the arguments are treated as byte values.
     */
-   get handshake(): Handshake;
-
+   constructor(...args: any[]);
+ 
    /**
-    * Gets the record layer representation.
+    * The legacy TLS version (0x0303 for TLS 1.2).
+    * @readonly
+    * @type {Version}
     */
-   get record(): TLSPlaintext;
-}
+   get version(): Version;
+ 
+   /**
+    * The server random value.
+    * @readonly
+    * @type {Uint8Array}
+    */
+   get random(): Uint8Array;
+ 
+   /**
+    * The echoed legacy session ID.
+    * @readonly
+    * @type {Uint8Array}
+    */
+   get legacy_session_id(): Uint8Array;
+ 
+   /**
+    * The chosen cipher suite.
+    * @readonly
+    * @type {Cipher}
+    */
+   get cipher(): Cipher;
+ 
+   /**
+    * The legacy compression method (should be zero in TLS 1.3).
+    * @readonly
+    * @type {Uint8Array}
+    */
+   get legacy_compression_methods(): Uint8Array;
+ 
+   /**
+    * The TLS extensions.
+    * @readonly
+    * @type {Map<ExtensionType, any>}
+    */
+   get extensions(): Map<ExtensionType, any>;
+ }
 
 
 

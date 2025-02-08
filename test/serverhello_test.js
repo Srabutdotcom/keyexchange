@@ -23,5 +23,4 @@ const serverHello = HexaDecimal.fromString(`03 03 a6
 
 const serverHelloBack = ServerHello.from(serverHello);
 
-debugger;
 

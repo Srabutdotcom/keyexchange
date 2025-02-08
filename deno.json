@@ -1,6 +1,6 @@
 {
   "name": "@tls/keyexchange",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "exports": "./src/mod.ts",
   "publish": {
     "exclude": ["dist/"]
@@ -18,6 +18,6 @@
     "@tls/extension": "jsr:@tls/extension@^0.3.0",
     "@tls/handshake": "jsr:@tls/handshake@^0.0.5",
     "@tls/record": "jsr:@tls/record@^0.1.3",
-    "@tls/struct": "jsr:@tls/struct@^0.3.7"
+    "@tls/struct": "jsr:@tls/struct@^0.3.8"
   }
 }
