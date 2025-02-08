@@ -4,11 +4,6 @@ import {
    ExtensionType
 } from "../src/dep.ts";
 
-import { ClientHello } from "../src/clienthello.js";
-
-// Define the type here instead of importing it
-export type Legacy_session_id = Uint8Array;
-
 /**
  * Represents a ServerHello message.
  */

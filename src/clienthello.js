@@ -116,7 +116,7 @@ function sanitize(...args) {
 
 //const test_0 = new ClientHello(HandshakeType.CLIENT_HELLO.Uint8)
 
-export class Cipher_suites extends Constrained {
+class Cipher_suites extends Constrained {
    static from(array) {
       const copy = Uint8Array.from(array);
       const lengthOf = Uint16.from(copy).value;

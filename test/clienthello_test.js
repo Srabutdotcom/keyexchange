@@ -1,15 +1,7 @@
-import { ClientHello, Cipher_suites } from "../src/clienthello.js";
-import { Cipher, ExtensionType, HexaDecimal, KeyShareServerHello, NamedGroup, NamedGroupList, PskKeyExchangeMode, PskKeyExchangeModes, SupportedVersions } from "../src/dep.ts"
+import { ClientHello } from "../src/clienthello.js";
+import { Cipher, ExtensionType, HexaDecimal, NamedGroup, NamedGroupList, PskKeyExchangeMode, PskKeyExchangeModes, SupportedVersions } from "../src/dep.ts"
 import { assertEquals } from "@std/assert"
-import { selectFirstMatch, selectKeyExchange } from "../src/utils.js";
-import { ServerHello } from "../src/serverhello.js";
-import { Selected_version, Supported_signature_algorithms } from "@tls/extension";
-
-Deno.test("Cipher_suites", () => {
-   const test = new Cipher_suites(Cipher.AES_128_GCM_SHA256, Cipher.AES_256_GCM_SHA384);
-   const back = Cipher_suites.from(test);
-   assertEquals(test, back)
-})
+import { Supported_signature_algorithms } from "@tls/extension";
 
 Deno.test("ClientHello", () => {
 
