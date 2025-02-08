@@ -87,7 +87,7 @@ export class ClientHello extends Uint8Array {
 
 function sanitize(...args) {
    try {
-      if(Version.from(...args) instanceof Version) return args
+      if(Version.from(args[0]) instanceof Version) return args
       throw Error
    } catch (_error) {
       try {
