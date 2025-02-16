@@ -9,12 +9,12 @@ export class ClientHello extends Uint8Array {
    #ciphers
    #legacy_compression_methods
    #extensions
-   static create(...args){
+   static create(...args) {
       return new ClientHello(...args)
    }
    static from = ClientHello.create
    constructor(...args) {
-      args = (args.at(0) instanceof Uint8Array)? sanitize(...args): args
+      args = (args.at(0) instanceof Uint8Array) ? sanitize(...args) : args
       super(...args)
    }
    get version() {
@@ -36,7 +36,10 @@ export class ClientHello extends Uint8Array {
       return this.#legacy_session_id
    }
    get ciphers() {
-      this.#ciphers ||= Cipher_suites.from(this.subarray(35 + this.at(34)));
+      this.#ciphers ||= /* _Cipher_suites.from */cipher_suites(this.subarray(35 + this.at(34)));
+      /* console.log(this.#ciphers);
+      const test = cipher_suites(this.subarray(35 + this.at(34))) 
+      console.log(test) */
       return this.#ciphers;
    }
    /**
@@ -88,11 +91,11 @@ export class ClientHello extends Uint8Array {
 
 function sanitize(...args) {
    try {
-      if(Version.from(args[0]) instanceof Version) return args
+      if (Version.from(args[0]) instanceof Version) return args
       throw Error
    } catch (_error) {
       try {
-         if(HandshakeType.from(args[0]) == HandshakeType.CLIENT_HELLO){
+         if (HandshakeType.from(args[0]) == HandshakeType.CLIENT_HELLO) {
             const lengthOf = Uint24.from(args[0].subarray(1)).value;
             return [args[0].subarray(4, 4 + lengthOf)]
          }
@@ -106,7 +109,7 @@ function sanitize(...args) {
                contentType == ContentType.HANDSHAKE,
                handshakeType == HandshakeType.CLIENT_HELLO
             ]
-            if(conditions.every(e=>e==true))return [args[0].subarray(9, 9 + lengthOf)]
+            if (conditions.every(e => e == true)) return [args[0].subarray(9, 9 + lengthOf)]
             throw Error;
          } catch (error) {
             throw error;
@@ -117,12 +120,20 @@ function sanitize(...args) {
 
 //const test_0 = new ClientHello(HandshakeType.CLIENT_HELLO.Uint8)
 
-class Cipher_suites extends Constrained {
+function cipher_suites(array) {
+   const lengthOf = Uint16.from(array).value;
+   if (lengthOf < 2) throw Error(`expected at list one cipher`)
+   const ciphers = parseItems(array, 2, lengthOf, Cipher);
+   ciphers.length = 2 + lengthOf;
+   return ciphers
+}
+
+class _Cipher_suites extends Constrained {
    static from(array) {
       const copy = Uint8Array.from(array);
       const lengthOf = Uint16.from(copy).value;
       const ciphers = parseItems(copy, 2, lengthOf, Cipher);
-      return new Cipher_suites(...ciphers)
+      return new _Cipher_suites(...ciphers)
    }
    constructor(...ciphers) {
       super(2, 2 ** 16 - 2, ...ciphers.map(e => e.Uint16))
@@ -139,7 +150,6 @@ function parseExtension(extension) {
          extension.parser = KeyShareClientHello; break;
       }
       case ExtensionType.SUPPORTED_VERSIONS: {
-         //FIXME - it should be specific class instead
          extension.parser = Versions; break;
       }
       case ExtensionType.SIGNATURE_ALGORITHMS: {

@@ -52,7 +52,7 @@ export class ServerHello extends Uint8Array {
       for (let offset = 2; offset < lengthOf + 2;) {
          const extension = Extension.from(copy.subarray(offset)); offset += extension.length
          parseExtension(extension);
-         output.set(extension.extension_type, extension.extension_data)
+         output.set(extension.type, extension)
       }
       this.#extensions ||= output;
       return this.#extensions
