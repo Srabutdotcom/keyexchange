@@ -1,7 +1,7 @@
 import { ClientHello } from "../src/clienthello.js";
-import { Cipher, ExtensionType, HexaDecimal, NamedGroup, NamedGroupList, PskKeyExchangeMode, PskKeyExchangeModes, SupportedVersions } from "../src/dep.ts"
+import { Extension, ExtensionType, HexaDecimal, NamedGroup, NamedGroupList, PskKeyExchangeMode, PskKeyExchangeModes } from "../src/dep.ts"
 import { assertEquals } from "@std/assert"
-import { Supported_signature_algorithms } from "@tls/extension";
+import { Supported_signature_algorithms, Versions } from "@tls/extension";
 
 Deno.test("ClientHello", () => {
 
@@ -44,10 +44,10 @@ const clientHelloRFC8448back = ClientHello.from(clientHelloRFC8448)
 //const clientHello = ClientHello.fromServerName('localhost');
 //const clientHelloback = ClientHello.from(clientHello)
 
-const supportedGroup = ExtensionType.SUPPORTED_GROUPS.extension(new NamedGroupList(NamedGroup.X25519));
-const signatureAlgorithms = ExtensionType.SIGNATURE_ALGORITHMS.extension(Supported_signature_algorithms.default());
-const pskKeyExchangeModes = ExtensionType.PSK_KEY_EXCHANGE_MODES.extension(new PskKeyExchangeModes(PskKeyExchangeMode.PSK_DHE_KE))
-const supportedVersions = ExtensionType.SUPPORTED_VERSIONS.extension(SupportedVersions.forClient_hello())
+const supportedGroup = Extension.create(ExtensionType.SUPPORTED_GROUPS,new NamedGroupList(NamedGroup.X25519));
+const signatureAlgorithms = Extension.create(ExtensionType.SIGNATURE_ALGORITHMS,Supported_signature_algorithms.default());
+const pskKeyExchangeModes = Extension.create(ExtensionType.PSK_KEY_EXCHANGE_MODES,new PskKeyExchangeModes(PskKeyExchangeMode.PSK_DHE_KE))
+const supportedVersions = Extension.create(ExtensionType.SUPPORTED_VERSIONS, Versions.default())
 
 const clientHelloPSKBinder = HexaDecimal.fromString(
    `01 00 01 fc 03 03 1b c3 ce b6 bb

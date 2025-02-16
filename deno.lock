@@ -3,18 +3,15 @@
   "specifiers": {
     "jsr:@std/assert@^1.0.2": "1.0.8",
     "jsr:@std/internal@^1.0.5": "1.0.5",
-    "jsr:@tls/auth@^0.0.9": "0.0.9",
-    "jsr:@tls/crypto@~0.3.4": "0.3.4",
     "jsr:@tls/enum@~0.1.6": "0.1.9",
     "jsr:@tls/enum@~0.1.9": "0.1.9",
     "jsr:@tls/enum@~0.2.2": "0.2.4",
     "jsr:@tls/enum@~0.2.3": "0.2.3",
     "jsr:@tls/enum@~0.2.4": "0.2.4",
-    "jsr:@tls/enum@~0.6.2": "0.6.5",
-    "jsr:@tls/enum@~0.6.5": "0.6.5",
-    "jsr:@tls/enum@~0.7.3": "0.7.3",
+    "jsr:@tls/enum@~0.7.3": "0.7.5",
+    "jsr:@tls/enum@~0.7.5": "0.7.7",
+    "jsr:@tls/enum@~0.7.7": "0.7.7",
     "jsr:@tls/extension@0.1": "0.1.2",
-    "jsr:@tls/extension@0.3": "0.3.0",
     "jsr:@tls/extension@~0.1.1": "0.1.1",
     "jsr:@tls/extension@~0.1.2": "0.1.9",
     "jsr:@tls/extension@~0.1.3": "0.1.3",
@@ -23,11 +20,7 @@
     "jsr:@tls/extension@~0.1.7": "0.1.7",
     "jsr:@tls/extension@~0.1.8": "0.1.8",
     "jsr:@tls/extension@~0.1.9": "0.1.9",
-    "jsr:@tls/extension@~0.2.9": "0.2.9",
-    "jsr:@tls/handshake@^0.0.5": "0.0.5",
-    "jsr:@tls/param@~0.2.1": "0.2.1",
-    "jsr:@tls/record@0.1": "0.1.3",
-    "jsr:@tls/record@~0.1.3": "0.1.3",
+    "jsr:@tls/extension@~0.3.9": "0.3.9",
     "jsr:@tls/struct@0.3": "0.3.6",
     "jsr:@tls/struct@~0.2.2": "0.2.6",
     "jsr:@tls/struct@~0.2.3": "0.2.3",
@@ -43,14 +36,7 @@
     "npm:@noble/curves@1.6.0": "1.6.0",
     "npm:@noble/curves@^1.7.0": "1.7.0",
     "npm:@noble/hashes@^1.6.1": "1.6.1",
-    "npm:@noble/hashes@^1.7.1": "1.7.1",
-    "npm:@peculiar/webcrypto@^1.5.0": "1.5.0",
-    "npm:@peculiar/x509@^1.12.3": "1.12.3",
-    "npm:@stablelib/aes@2": "2.0.1",
-    "npm:@stablelib/gcm@2": "2.0.1",
-    "npm:@stablelib/hmac@^2.0.1": "2.0.1",
-    "npm:@stablelib/sha256@^2.0.1": "2.0.1",
-    "npm:@stablelib/sha384@^2.0.1": "2.0.1"
+    "npm:@peculiar/x509@^1.12.3": "1.12.3"
   },
   "jsr": {
     "@std/assert@1.0.8": {
@@ -61,37 +47,6 @@
     },
     "@std/internal@1.0.5": {
       "integrity": "54a546004f769c1ac9e025abd15a76b6671ddc9687e2313b67376125650dc7ba"
-    },
-    "@tls/auth@0.0.9": {
-      "integrity": "bb815e265ae7c4737fbc4232b753809c93dc7cd2a8c659f751e00341a0a5745f",
-      "dependencies": [
-        "jsr:@std/assert",
-        "jsr:@tls/enum@~0.7.3",
-        "jsr:@tls/handshake",
-        "jsr:@tls/struct@~0.3.7",
-        "npm:@noble/hashes@^1.7.1",
-        "npm:@peculiar/x509"
-      ]
-    },
-    "@tls/crypto@0.3.4": {
-      "integrity": "dafe3192873775243c98ff6e2ca2f7bd8fdaadd5a7506732d2b6d3779dcf4d47",
-      "dependencies": [
-        "jsr:@tls/auth",
-        "jsr:@tls/enum@~0.7.3",
-        "jsr:@tls/extension@~0.2.9",
-        "jsr:@tls/handshake",
-        "jsr:@tls/param",
-        "jsr:@tls/record@0.1",
-        "jsr:@tls/struct@~0.3.7",
-        "npm:@noble/curves@^1.7.0",
-        "npm:@noble/hashes@^1.6.1",
-        "npm:@peculiar/webcrypto",
-        "npm:@stablelib/aes",
-        "npm:@stablelib/gcm",
-        "npm:@stablelib/hmac",
-        "npm:@stablelib/sha256",
-        "npm:@stablelib/sha384"
-      ]
     },
     "@tls/enum@0.1.9": {
       "integrity": "b24a14b4a0a8297f01e495725467891d3487991af5bcfc580122f564a7c1a09d",
@@ -129,7 +84,7 @@
       "dependencies": [
         "jsr:@tls/struct@~0.3.2",
         "npm:@noble/curves@^1.7.0",
-        "npm:@noble/hashes@^1.6.1",
+        "npm:@noble/hashes",
         "npm:@peculiar/x509"
       ]
     },
@@ -138,16 +93,7 @@
       "dependencies": [
         "jsr:@tls/struct@~0.3.6",
         "npm:@noble/curves@^1.7.0",
-        "npm:@noble/hashes@^1.6.1",
-        "npm:@peculiar/x509"
-      ]
-    },
-    "@tls/enum@0.6.5": {
-      "integrity": "2462c2bb75f7e111a32735dbd1cb9cd3a98aba4df776d88327d0089b67ec01f1",
-      "dependencies": [
-        "jsr:@tls/struct@~0.3.6",
-        "npm:@noble/curves@^1.7.0",
-        "npm:@noble/hashes@^1.6.1",
+        "npm:@noble/hashes",
         "npm:@peculiar/x509"
       ]
     },
@@ -156,7 +102,25 @@
       "dependencies": [
         "jsr:@tls/struct@~0.3.7",
         "npm:@noble/curves@^1.7.0",
-        "npm:@noble/hashes@^1.6.1",
+        "npm:@noble/hashes",
+        "npm:@peculiar/x509"
+      ]
+    },
+    "@tls/enum@0.7.5": {
+      "integrity": "a057cdb978a3a980e60a977836ac049415692a48483b87a7ac9a2ef46709d084",
+      "dependencies": [
+        "jsr:@tls/struct@~0.3.7",
+        "npm:@noble/curves@^1.7.0",
+        "npm:@noble/hashes",
+        "npm:@peculiar/x509"
+      ]
+    },
+    "@tls/enum@0.7.7": {
+      "integrity": "b26c389b277c009033ebd8b103b3e8303a21832f00889917e458bfeb18653029",
+      "dependencies": [
+        "jsr:@tls/struct@~0.3.8",
+        "npm:@noble/curves@^1.7.0",
+        "npm:@noble/hashes",
         "npm:@peculiar/x509"
       ]
     },
@@ -223,44 +187,11 @@
         "jsr:@tls/struct@0.3"
       ]
     },
-    "@tls/extension@0.2.9": {
-      "integrity": "18499ee4ffcb1d0fe0049f6d2da5d895e84b7249949b0ae6340f8787aabee448",
+    "@tls/extension@0.3.9": {
+      "integrity": "99b6d763ff33407ba5af13238f3fc555b491aebff75073b17bd016dc1fa9ebb3",
       "dependencies": [
-        "jsr:@tls/enum@~0.6.2",
-        "jsr:@tls/struct@~0.3.6"
-      ]
-    },
-    "@tls/extension@0.3.0": {
-      "integrity": "3d305e55d2c64d2098cf549a8595eb0cf2eb1d1e97ff97696bd1fd7ea613bac5",
-      "dependencies": [
-        "jsr:@tls/enum@~0.7.3",
-        "jsr:@tls/struct@~0.3.7"
-      ]
-    },
-    "@tls/handshake@0.0.5": {
-      "integrity": "2a2773c7f5b1efa8ad37ca6c0eb463846eab19555f533736f5f48ef54946a328",
-      "dependencies": [
-        "jsr:@tls/enum@~0.7.3",
-        "jsr:@tls/record@0.1",
-        "jsr:@tls/struct@~0.3.7"
-      ]
-    },
-    "@tls/param@0.2.1": {
-      "integrity": "9abed94195c702c5aacc5b25915f88b3995c182676f0c4185b991652af23945e",
-      "dependencies": [
-        "jsr:@tls/enum@~0.7.3",
-        "jsr:@tls/extension@0.3",
-        "jsr:@tls/handshake",
-        "jsr:@tls/struct@~0.3.7"
-      ]
-    },
-    "@tls/record@0.1.3": {
-      "integrity": "e013a7e84bc5bec1587100fcd14b9bc33bc862f204907a31fb8abed159711f22",
-      "dependencies": [
-        "jsr:@tls/crypto",
-        "jsr:@tls/enum@~0.7.3",
-        "jsr:@tls/handshake",
-        "jsr:@tls/struct@~0.3.7"
+        "jsr:@tls/enum@~0.7.7",
+        "jsr:@tls/struct@~0.3.8"
       ]
     },
     "@tls/struct@0.2.3": {
@@ -315,9 +246,6 @@
     },
     "@noble/hashes@1.6.1": {
       "integrity": "sha512-pq5D8h10hHBjyqX+cfBm0i8JUXJ0UhczFc4r74zbuT9XgewFo2E3J1cOaGtdZynILNmQ685YWGzGE1Zv6io50w=="
-    },
-    "@noble/hashes@1.7.1": {
-      "integrity": "sha512-B8XBPsn4vT/KJAGqDzbwztd+6Yte3P4V7iafm24bxgDe/mlRuK6xmWPuCNrKt2vDafZ8MfJLlchDG/vYafQEjQ=="
     },
     "@peculiar/asn1-cms@2.3.13": {
       "integrity": "sha512-joqu8A7KR2G85oLPq+vB+NFr2ro7Ls4ol13Zcse/giPSzUNN0n2k3v8kMpf6QdGUhI13e5SzQYN8AKP8sJ8v4w==",
@@ -416,22 +344,6 @@
         "tslib@2.8.1"
       ]
     },
-    "@peculiar/json-schema@1.1.12": {
-      "integrity": "sha512-coUfuoMeIB7B8/NMekxaDzLhaYmp0HZNPEjYRm9goRou8UZIC3z21s0sL9AWoCw4EG876QyO3kYrc61WNF9B/w==",
-      "dependencies": [
-        "tslib@2.8.1"
-      ]
-    },
-    "@peculiar/webcrypto@1.5.0": {
-      "integrity": "sha512-BRs5XUAwiyCDQMsVA9IDvDa7UBR9gAvPHgugOeGng3YN6vJ9JYonyDc0lNczErgtCWtucjR5N7VtaonboD/ezg==",
-      "dependencies": [
-        "@peculiar/asn1-schema",
-        "@peculiar/json-schema",
-        "pvtsutils",
-        "tslib@2.8.1",
-        "webcrypto-core"
-      ]
-    },
     "@peculiar/x509@1.12.3": {
       "integrity": "sha512-+Mzq+W7cNEKfkNZzyLl6A6ffqc3r21HGZUezgfKxpZrkORfOqgRXnS80Zu0IV6a9Ue9QBJeKD7kN0iWfc3bhRQ==",
       "dependencies": [
@@ -447,86 +359,6 @@
         "tslib@2.8.1",
         "tsyringe"
       ]
-    },
-    "@stablelib/aead@2.0.0": {
-      "integrity": "sha512-U/RMANRxbT/ahIpYsPSiFwDFNjADHdnCFfmo09MO1ai2XmerPAOPtMl0qmX7XVvygnACC6ijKDyHBoT2rGyElg=="
-    },
-    "@stablelib/aes@2.0.1": {
-      "integrity": "sha512-LpDuPe9Cr/IXXJaCHDCAITtVa7uLV6P+Cs3V8lZw87sElX7eOLk1OHTSzzvWagTJf++O+o3EISawHh1uzyi4qw==",
-      "dependencies": [
-        "@stablelib/binary",
-        "@stablelib/blockcipher",
-        "@stablelib/wipe"
-      ]
-    },
-    "@stablelib/binary@2.0.1": {
-      "integrity": "sha512-U9iAO8lXgEDONsA0zPPSgcf3HUBNAqHiJmSHgZz62OvC3Hi2Bhc5kTnQ3S1/L+sthDTHtCMhcEiklmIly6uQ3w==",
-      "dependencies": [
-        "@stablelib/int"
-      ]
-    },
-    "@stablelib/blockcipher@2.0.0": {
-      "integrity": "sha512-c0iMTah5a5KxeqVyf6ejpaRkYanODvGaQn8wgvLLAnY23fHZMjhR6ycQVvasW2nIzAmc+faetpRORJqAfaE/yw=="
-    },
-    "@stablelib/constant-time@2.0.1": {
-      "integrity": "sha512-0NWPogffRm+UWBH0+iM5otZmNrVe5OHFIvyoNIVankMAYOQzMwcdVALOVPrB5Ho0dST+Oc3H8/hPh65Z8R/uew=="
-    },
-    "@stablelib/ctr@2.0.1": {
-      "integrity": "sha512-lV5klc4348B21/kw2O88RivMDFCryaprHtzxk6wk+eS3X2ZiPDzKpsKCSOLcklDDynueGKgdxFDkf3L8YFCmPg==",
-      "dependencies": [
-        "@stablelib/blockcipher",
-        "@stablelib/wipe"
-      ]
-    },
-    "@stablelib/gcm@2.0.1": {
-      "integrity": "sha512-M5el8454c3Yy7NTQtDovonFl+e9b7vaNksYfJJErL3fFUGs7AsWF3rSSYSokrbtY3t00ywv+w4WjYh0kcaez/Q==",
-      "dependencies": [
-        "@stablelib/aead",
-        "@stablelib/binary",
-        "@stablelib/blockcipher",
-        "@stablelib/constant-time",
-        "@stablelib/ctr",
-        "@stablelib/wipe"
-      ]
-    },
-    "@stablelib/hash@2.0.0": {
-      "integrity": "sha512-u3WPSqGido8lwJuMcrBgM5K54LrPGhkWAdtsyccf7dGsLixAZUds77zOAbu7bvKPwQlmoByH0txBi5rTmEKuHg=="
-    },
-    "@stablelib/hmac@2.0.1": {
-      "integrity": "sha512-YDMEmogYNDWESU8ggMiTi4VDMfHt2XG+pgVskJCHuKVlmWwXxYKZ6bn5dq24/jU3vzZSajwKzRCU6iafT2OKUA==",
-      "dependencies": [
-        "@stablelib/constant-time",
-        "@stablelib/hash",
-        "@stablelib/wipe"
-      ]
-    },
-    "@stablelib/int@2.0.1": {
-      "integrity": "sha512-Ht63fQp3wz/F8U4AlXEPb7hfJOIILs8Lq55jgtD7KueWtyjhVuzcsGLSTAWtZs3XJDZYdF1WcSKn+kBtbzupww=="
-    },
-    "@stablelib/sha256@2.0.1": {
-      "integrity": "sha512-LA1PaLDc6Lv72ppA4PEZ7abDE741KfG7k7QhBiUyIfViMqrwWv8HqQQFPeuPfS4k2OxFv++IAgc8HlvdBatD+w==",
-      "dependencies": [
-        "@stablelib/binary",
-        "@stablelib/hash",
-        "@stablelib/wipe"
-      ]
-    },
-    "@stablelib/sha384@2.0.1": {
-      "integrity": "sha512-B5jMyM8KmCQlrXDjPzCXoNRgxR1zMkZmlKeSTDkunaQWbQRiYo7QYS3zE0iVAPUaAVBTuPV9hqsFGpH5lIMHkA==",
-      "dependencies": [
-        "@stablelib/sha512"
-      ]
-    },
-    "@stablelib/sha512@2.0.1": {
-      "integrity": "sha512-DUNe5cbnoH3sSIN+MG04RvTCLXtkbyy/SnQxiNO+GgF/KSXkkUSlF6mUVvCUdZBZ2X3NgogR+tAvaRSn8wxnLw==",
-      "dependencies": [
-        "@stablelib/binary",
-        "@stablelib/hash",
-        "@stablelib/wipe"
-      ]
-    },
-    "@stablelib/wipe@2.0.1": {
-      "integrity": "sha512-1eU2K9EgOcV4qc9jcP6G72xxZxEm5PfeI5H55l08W95b4oRJaqhmlWRc4xZAm6IVSKhVNxMi66V67hCzzuMTAg=="
     },
     "asn1js@3.0.5": {
       "integrity": "sha512-FVnvrKJwpt9LP2lAMl8qZswRNm3T4q9CON+bxldk2iwk3FFpuwhx2FfinyitizWHsVYyaY+y5JzDR0rCMV5yTQ==",
@@ -562,25 +394,13 @@
       "dependencies": [
         "tslib@1.14.1"
       ]
-    },
-    "webcrypto-core@1.8.1": {
-      "integrity": "sha512-P+x1MvlNCXlKbLSOY4cYrdreqPG5hbzkmawbcXLKN/mf6DZW0SdNNkZ+sjwsqVkI4A4Ko2sPZmkZtCKY58w83A==",
-      "dependencies": [
-        "@peculiar/asn1-schema",
-        "@peculiar/json-schema",
-        "asn1js",
-        "pvtsutils",
-        "tslib@2.8.1"
-      ]
     }
   },
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@^1.0.2",
-      "jsr:@tls/enum@~0.7.3",
-      "jsr:@tls/extension@0.3",
-      "jsr:@tls/handshake@^0.0.5",
-      "jsr:@tls/record@~0.1.3",
+      "jsr:@tls/enum@~0.7.7",
+      "jsr:@tls/extension@~0.3.9",
       "jsr:@tls/struct@~0.3.8"
     ]
   }

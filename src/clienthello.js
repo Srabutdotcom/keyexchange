@@ -1,5 +1,6 @@
 //@ts-self-types = "../type/clienthello.d.ts"
-import { Cipher, Constrained, ContentType, Cookie, EarlyDataIndication, Extension, ExtensionType, HandshakeType, KeyShareClientHello, NamedGroupList, OfferedPsks, Padding, parseItems, PskKeyExchangeModes, RecordSizeLimit, safeuint8array, ServerNameList, Supported_signature_algorithms, SupportedVersions, Uint16, Uint24, Version } from "./dep.ts";
+import { Cipher, Constrained, ContentType, Cookie, EarlyDataIndication, Extension, ExtensionType, HandshakeType, KeyShareClientHello, NamedGroupList, OfferedPsks, Padding, parseItems, PskKeyExchangeModes, RecordSizeLimit, safeuint8array, ServerNameList, Supported_signature_algorithms, Uint16, Uint24, Version } from "./dep.ts";
+import { Versions } from "@tls/extension"
 
 export class ClientHello extends Uint8Array {
    #version
@@ -63,8 +64,8 @@ export class ClientHello extends Uint8Array {
       while (true) {
          const extension = Extension.from(copy.subarray(offset)); offset += extension.length
          parseExtension(extension);
-         extension.extension_data.pos = offset + 2;
-         output.set(extension.extension_type, extension.extension_data)
+         extension.pos = offset + 2;
+         output.set(extension.type, extension)
          if (offset >= lengthOf) break;
          if (offset >= copy.length) break;
       }
@@ -73,7 +74,7 @@ export class ClientHello extends Uint8Array {
    }
    addBinders(binders) {
       const psk = this.extensions.get(ExtensionType.PRE_SHARED_KEY);
-      const lengthOf = psk.length + binders.length;
+      const lengthOf = psk.data.length + binders.length;
       const uint16 = Uint16.fromValue(lengthOf)
       const array = safeuint8array(this, binders);
       array.set(uint16, psk.pos + 2);
@@ -81,7 +82,7 @@ export class ClientHello extends Uint8Array {
    }
    binderPos() {
       const psk = this.extensions.get(ExtensionType.PRE_SHARED_KEY);
-      return psk.pos + 4 + psk.identities.length
+      return psk.pos + 4 + psk.data.identities.length
    }
 }
 
@@ -130,40 +131,40 @@ class Cipher_suites extends Constrained {
 }
 
 function parseExtension(extension) {
-   const { extension_type, extension_data } = extension;
-   switch (extension_type) {
+   switch (extension.type) {
       case ExtensionType.SUPPORTED_GROUPS: {
-         extension.extension_data = NamedGroupList.from(extension_data); break;
+         extension.parser = NamedGroupList; break;
       }
       case ExtensionType.KEY_SHARE: {
-         extension.extension_data = KeyShareClientHello.from(extension_data); break;
+         extension.parser = KeyShareClientHello; break;
       }
       case ExtensionType.SUPPORTED_VERSIONS: {
-         extension.extension_data = SupportedVersions.fromClient_hello(extension_data); break;
+         //FIXME - it should be specific class instead
+         extension.parser = Versions; break;
       }
       case ExtensionType.SIGNATURE_ALGORITHMS: {
-         extension.extension_data = Supported_signature_algorithms.from(extension_data); break;
+         extension.parser = Supported_signature_algorithms; break;
       }
       case ExtensionType.SERVER_NAME: {
-         extension.extension_data = extension_data.length ? ServerNameList.from(extension_data) : extension_data; break;
+         extension.parser = extension.data.length ? ServerNameList : undefined; break;
       }
       case ExtensionType.PSK_KEY_EXCHANGE_MODES: {
-         extension.extension_data = PskKeyExchangeModes.from(extension_data); break;
+         extension.parser = PskKeyExchangeModes; break;
       }
       case ExtensionType.COOKIE: {
-         extension.extension_data = Cookie.from(extension_data); break;
+         extension.parser = Cookie; break;
       }
       case ExtensionType.RECORD_SIZE_LIMIT: {
-         extension.extension_data = RecordSizeLimit.from(extension_data); break;
+         extension.parser = RecordSizeLimit; break;
       }
       case ExtensionType.EARLY_DATA: {
-         extension.extension_data = EarlyDataIndication.from(extension_data); break;
+         extension.parser = EarlyDataIndication; break;
       }
       case ExtensionType.PADDING: {
-         extension.extension_data = Padding.from(extension_data); break;
+         extension.parser = Padding; break;
       }
       case ExtensionType.PRE_SHARED_KEY: {
-         extension.extension_data = OfferedPsks.from(extension_data); break;
+         extension.parser = OfferedPsks; break;
       }
       default:
          break;

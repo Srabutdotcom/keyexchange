@@ -1,5 +1,5 @@
 //@ts-self-types="../type/serverhello.d.ts"
-import { Cipher, ContentType, Extension, ExtensionType, HandshakeType, KeyShareServerHello, SupportedVersions, Uint16, Uint24, Version } from "./dep.ts";
+import { Cipher, ContentType, Extension, ExtensionType, HandshakeType, KeyShareServerHello, Selected_version, Uint16, Uint24, Version } from "./dep.ts";
 
 
 export class ServerHello extends Uint8Array {
@@ -89,13 +89,12 @@ function sanitize(...args) {
 }
 
 function parseExtension(extension) {
-   const { extension_type, extension_data } = extension;
-   switch (extension_type) {
+   switch (extension.type) {
       case ExtensionType.KEY_SHARE: {
-         extension.extension_data = KeyShareServerHello.from(extension_data); break;
+         extension.parser = KeyShareServerHello; break;
       }
       case ExtensionType.SUPPORTED_VERSIONS: {
-         extension.extension_data = SupportedVersions.fromServer_hello(extension_data); break;
+         extension.parser = Selected_version; break;
       }
       default:
          break;
