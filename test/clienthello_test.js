@@ -1,3 +1,4 @@
+import { buildClientHello } from "../src/clienthello.js";
 import { ClientHello } from "../src/clienthello.js";
 import { Extension, ExtensionType, HexaDecimal, NamedGroup, NamedGroupList, PskKeyExchangeMode, PskKeyExchangeModes } from "../src/dep.ts"
 import { assertEquals } from "@std/assert"
@@ -47,7 +48,7 @@ const clientHelloRFC8448back = ClientHello.from(clientHelloRFC8448)
 const supportedGroup = Extension.create(ExtensionType.SUPPORTED_GROUPS,new NamedGroupList(NamedGroup.X25519));
 const signatureAlgorithms = Extension.create(ExtensionType.SIGNATURE_ALGORITHMS,Supported_signature_algorithms.default());
 const pskKeyExchangeModes = Extension.create(ExtensionType.PSK_KEY_EXCHANGE_MODES,new PskKeyExchangeModes(PskKeyExchangeMode.PSK_DHE_KE))
-const supportedVersions = Extension.create(ExtensionType.SUPPORTED_VERSIONS, Versions.default())
+const supportedVersions = Extension.create(ExtensionType.SUPPORTED_VERSIONS, Versions.defaultOne())
 
 const clientHelloPSKBinder = HexaDecimal.fromString(
    `01 00 01 fc 03 03 1b c3 ce b6 bb
@@ -95,3 +96,8 @@ const clientHelloRecord = HexaDecimal.fromString(`16 03 01 00 c4 01 00 00 c0 03 
    01 04 02 05 02 06 02 02 02 00 2d 00 02 01 01 00 1c 00 02 40 01`).byte;
 
 const test_1 = new ClientHello(clientHelloRecord);
+
+const clientHello_0 = buildClientHello('smtp.gmail1.com', 'smtp.gmail2.com');
+const handshake = clientHello_0.handshake;
+const record = clientHello_0.record;
+

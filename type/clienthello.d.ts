@@ -25,6 +25,11 @@ export class ClientHello extends Uint8Array {
   #extensions: Map<ExtensionType, any> | null ; // Use appropriate type for extension data
 
   /**
+   * Create a new ClientHello from serverNames
+   * @param {...string[]} serverNames 
+   */
+  static build(...serverNames: string[]): ClientHello;
+  /**
    * Creates a new ClientHello instance.
    * @static
    * @param {...any[]} args - The arguments to create the ClientHello.
@@ -107,6 +112,20 @@ export class ClientHello extends Uint8Array {
    * @returns {number} The position of the PSK binders.
    */
   binderPos(): number;
+  
+  /**
+   * Handshake of ClientHello or ClientHello Message
+   * @readonly
+   * @type {Uint8Array}
+   */
+  get handshake(): Uint8Array;
+  
+  /**
+   * Record or TLSPlaintext of ClientHello Message 
+   * @readonly
+   * @type {Uint8Array}
+   */
+  get record(): Uint8Array;
 }
 
 /**

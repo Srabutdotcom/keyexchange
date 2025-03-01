@@ -9,7 +9,7 @@ export class ServerHello extends Uint8Array {
    #cipher_suite
    #legacy_compression_method
    #extensions
-   static create(...args){
+   static create(...args) {
       return new ServerHello(...args)
    }
    static from = ServerHello.create
@@ -56,6 +56,13 @@ export class ServerHello extends Uint8Array {
       }
       this.#extensions ||= output;
       return this.#extensions
+   }
+   get handshake() {
+      return safeuint8array(2, Uint24.fromValue(this.length), this)
+   }
+   get record() {
+      const handshake = this.handshake
+      return safeuint8array(22, Version.legacy.byte, Uint16.fromValue(handshake.length), handshake)
    }
 }
 

@@ -1,5 +1,5 @@
 //@ts-self-types = "../type/clienthello.d.ts"
-import { Cipher, Constrained, ContentType, Cookie, EarlyDataIndication, Extension, ExtensionType, HandshakeType, KeyShareClientHello, NamedGroupList, OfferedPsks, Padding, parseItems, PskKeyExchangeModes, RecordSizeLimit, safeuint8array, ServerNameList, Supported_signature_algorithms, Uint16, Uint24, Version } from "./dep.ts";
+import { Cipher, Constrained, ContentType, Cookie, EarlyDataIndication, Extension, ExtensionType, HandshakeType, KeyShareClientHello, NamedGroup, NamedGroupList, OfferedPsks, Padding, parseItems, PskKeyExchangeMode, PskKeyExchangeModes, RecordSizeLimit, safeuint8array, ServerNameList, SignatureScheme, SignatureSchemeList, Supported_signature_algorithms, Uint16, Uint24, Version } from "./dep.ts";
 import { Versions } from "@tls/extension"
 
 export class ClientHello extends Uint8Array {
@@ -9,6 +9,7 @@ export class ClientHello extends Uint8Array {
    #ciphers
    #legacy_compression_methods
    #extensions
+   static build = buildClientHello;
    static create(...args) {
       return new ClientHello(...args)
    }
@@ -86,6 +87,13 @@ export class ClientHello extends Uint8Array {
    binderPos() {
       const psk = this.extensions.get(ExtensionType.PRE_SHARED_KEY);
       return psk.pos + 4 + psk.data.identities.length
+   }
+   get handshake(){
+      return safeuint8array(1, Uint24.fromValue(this.length), this)
+   }
+   get record(){
+      const handshake = this.handshake
+      return safeuint8array(22, Version.legacy.byte, Uint16.fromValue(handshake.length), handshake)
    }
 }
 
@@ -180,4 +188,108 @@ function parseExtension(extension) {
          break;
    }
 }
+
+export function buildClientHello(...serverNames) {
+   // derived from _clientHelloHead
+   const clientHelloHead = Uint8Array.of(3, 3, 238, 224, 243, 110, 198, 197, 21, 0, 31, 62, 170, 168, 11, 114, 76, 23, 125, 57, 4, 182, 125, 129, 85, 232, 67, 131, 111, 67, 131, 169, 63, 58, 0, 0, 6, 19, 1, 19, 2, 19, 3, 1, 0);
+
+   // to make random 32
+   crypto.getRandomValues(clientHelloHead.subarray(2, 2 + 32));
+
+   // derived from _extensionList
+   const extension_1 = Uint8Array.of(0, 10, 0, 4, 0, 2, 0, 29, 0, 13, 0, 24, 0, 22, 8, 9, 8, 10, 8, 11, 8, 4, 8, 5, 8, 6, 4, 3, 5, 3, 6, 3, 8, 7, 8, 8, 0, 43, 0, 3, 2, 3, 4, 0, 45, 0, 2, 1, 1);
+
+   const key_share = Extension.create(
+      ExtensionType.KEY_SHARE,
+      KeyShareClientHello.fromKeyShareEntries(
+         NamedGroup.X25519.keyShareEntry()
+      )
+   )
+
+   const sni = Extension.create(
+      ExtensionType.SERVER_NAME,
+      ServerNameList.fromName(...serverNames)
+   );
+
+   const exts = safeuint8array(extension_1, key_share, sni);
+
+   const extensions = safeuint8array(Uint16.fromValue(exts.length), exts);
+
+   return ClientHello.from(safeuint8array(clientHelloHead, extensions))
+}
+
+const _legacy = Version.legacy.byte; 
+const ciphers = ciphersFrom(
+   Cipher.AES_128_GCM_SHA256,
+   Cipher.AES_256_GCM_SHA384,
+   Cipher.CHACHA20_POLY1305_SHA256
+)
+
+function ciphersFrom(...ciphers) {
+   const _merged = safeuint8array(...ciphers.map(e => e.byte));
+   const result = safeuint8array(Uint16.fromValue(_merged.length), _merged)
+   return result;
+}
+
+const _clientHelloHead = safeuint8array(
+   Version.legacy.byte,
+   crypto.getRandomValues(new Uint8Array(32)),
+   Uint8Array.of(0),
+   ciphers,
+   Uint8Array.of(1, 0),
+   //safeuint8array(Uint16.fromValue(extensionList.length), extensionList)
+);
+
+
+const _extensionList = safeuint8array(
+   Extension.create(
+      ExtensionType.SUPPORTED_GROUPS,
+      new NamedGroupList(
+         NamedGroup.X25519,
+         /* NamedGroup.X448,
+         NamedGroup.SECP521R1,
+         NamedGroup.SECP384R1,
+         NamedGroup.SECP256R1 */
+      )
+   ),
+   Extension.create(
+      ExtensionType.SIGNATURE_ALGORITHMS,
+      new SignatureSchemeList(
+         SignatureScheme.RSA_PSS_PSS_SHA256,
+         SignatureScheme.RSA_PSS_PSS_SHA384,
+         SignatureScheme.RSA_PSS_PSS_SHA512,
+         SignatureScheme.RSA_PSS_RSAE_SHA256,
+         SignatureScheme.RSA_PSS_RSAE_SHA384,
+         SignatureScheme.RSA_PSS_RSAE_SHA512,
+         SignatureScheme.ECDSA_SECP256R1_SHA256,
+         SignatureScheme.ECDSA_SECP384R1_SHA384,
+         SignatureScheme.ECDSA_SECP521R1_SHA512,
+         SignatureScheme.ED25519,
+         SignatureScheme.ED448
+      )
+   ),
+   Extension.create(
+      ExtensionType.SUPPORTED_VERSIONS,
+      Versions.defaultOne()
+   ),
+   Extension.create(
+      ExtensionType.PSK_KEY_EXCHANGE_MODES,
+      new PskKeyExchangeModes(PskKeyExchangeMode.PSK_DHE_KE)
+   ),
+   /* Extension.create(
+      ExtensionType.KEY_SHARE,
+      KeyShareClientHello.fromKeyShareEntries(
+         NamedGroup.X25519.keyShareEntry(),
+         NamedGroup.X448.keyShareEntry(),
+         NamedGroup.SECP521R1.keyShareEntry(),
+         NamedGroup.SECP384R1.keyShareEntry(),
+         NamedGroup.SECP256R1.keyShareEntry(),
+      )
+   ),
+   Extension.create(
+      ExtensionType.SERVER_NAME,
+      new ServerNameList(ServerName.fromName('smtp.gmail.com'))
+   ) */
+)
+
 
