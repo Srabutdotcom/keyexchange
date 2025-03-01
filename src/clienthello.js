@@ -212,10 +212,12 @@ export function buildClientHello(...serverNames) {
    // derived from _extensionList
    const extension_1 = Uint8Array.of(0, 10, 0, 4, 0, 2, 0, 29, 0, 13, 0, 24, 0, 22, 8, 9, 8, 10, 8, 11, 8, 4, 8, 5, 8, 6, 4, 3, 5, 3, 6, 3, 8, 7, 8, 8, 0, 43, 0, 3, 2, 3, 4, 0, 45, 0, 2, 1, 1);
 
+   const namedGroup = NamedGroup.X25519;
+
    const key_share = Extension.create(
       ExtensionType.KEY_SHARE,
       KeyShareClientHello.fromKeyShareEntries(
-         NamedGroup.X25519.keyShareEntry()
+         namedGroup.keyShareEntry()
       )
    )
 
@@ -228,7 +230,9 @@ export function buildClientHello(...serverNames) {
 
    const extensions = safeuint8array(Uint16.fromValue(exts.length), exts);
 
-   return ClientHello.from(safeuint8array(clientHelloHead, extensions))
+   const clientHello = ClientHello.from(safeuint8array(clientHelloHead, extensions))
+   clientHello.namedGroup = namedGroup
+   return clientHello
 }
 
 const _legacy = Version.legacy.byte; 
