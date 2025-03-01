@@ -1,5 +1,5 @@
 //@ts-self-types="../type/serverhello.d.ts"
-import { Cipher, ContentType, Extension, ExtensionType, HandshakeType, KeyShareServerHello, Selected_version, Uint16, Uint24, Version } from "./dep.ts";
+import { Cipher, ContentType, Extension, ExtensionType, HandshakeType, KeyShareServerHello, safeuint8array, Selected_version, Uint16, Uint24, Version } from "./dep.ts";
 
 
 export class ServerHello extends Uint8Array {
