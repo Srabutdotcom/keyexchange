@@ -9,6 +9,7 @@ export class ClientHello extends Uint8Array {
    #ciphers
    #legacy_compression_methods
    #extensions
+   #namedGroup
    static build = buildClientHello;
    static create(...args) {
       return new ClientHello(...args)
@@ -94,6 +95,18 @@ export class ClientHello extends Uint8Array {
    get record(){
       const handshake = this.handshake
       return safeuint8array(22, Version.legacy.byte, Uint16.fromValue(handshake.length), handshake)
+   }
+   set namedGroup(group){
+      this.#namedGroup = group;
+   }
+   get namedGroup(){
+      return this.#namedGroup;
+   }
+   get privateKey(){
+      return this.namedGroup.privateKey;
+   }
+   get publicKey(){
+      return this.namedGroup.publicKey;
    }
 }
 

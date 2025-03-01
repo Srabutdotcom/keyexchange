@@ -100,4 +100,6 @@ const test_1 = new ClientHello(clientHelloRecord);
 const clientHello_0 = buildClientHello('smtp.gmail1.com', 'smtp.gmail2.com');
 const handshake = clientHello_0.handshake;
 const record = clientHello_0.record;
+const privateKey = clientHello_0.extensions.get(ExtensionType.KEY_SHARE);
+debugger;
 

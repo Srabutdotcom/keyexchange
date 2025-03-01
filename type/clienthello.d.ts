@@ -2,8 +2,9 @@ import {
   Cipher,
   Constrained,
   Extension,
-  Version, 
-  ExtensionType
+  ExtensionType,
+  NamedGroup,
+  Version,
 } from "../src/dep.ts";
 
 /**
@@ -17,16 +18,17 @@ import {
  * @extends Uint8Array
  */
 export class ClientHello extends Uint8Array {
-  #version: Version | null 
-  #random: Uint8Array | null 
-  #legacy_session_id: Uint8Array | null 
-  #ciphers: Cipher_suites | null ;
-  #legacy_compression_methods: Uint8Array | null ;
-  #extensions: Map<ExtensionType, any> | null ; // Use appropriate type for extension data
+  #version: Version | null;
+  #random: Uint8Array | null;
+  #legacy_session_id: Uint8Array | null;
+  #ciphers: Cipher_suites | null;
+  #legacy_compression_methods: Uint8Array | null;
+  #extensions: Map<ExtensionType, any> | null; // Use appropriate type for extension data
+  #namedGroup: NamedGroup;
 
   /**
    * Create a new ClientHello from serverNames
-   * @param {...string[]} serverNames 
+   * @param {...string[]} serverNames
    */
   static build(...serverNames: string[]): ClientHello;
   /**
@@ -48,7 +50,6 @@ export class ClientHello extends Uint8Array {
    * @returns {ClientHello} A new ClientHello instance.
    */
   static from(...args: any[]): ClientHello;
-
 
   /**
    * Constructs a new ClientHello instance.
@@ -112,20 +113,44 @@ export class ClientHello extends Uint8Array {
    * @returns {number} The position of the PSK binders.
    */
   binderPos(): number;
-  
+
   /**
    * Handshake of ClientHello or ClientHello Message
    * @readonly
    * @type {Uint8Array}
    */
   get handshake(): Uint8Array;
-  
+
   /**
-   * Record or TLSPlaintext of ClientHello Message 
+   * Record or TLSPlaintext of ClientHello Message
    * @readonly
    * @type {Uint8Array}
    */
   get record(): Uint8Array;
+
+  /**
+   * Sets the named group.
+   * @param {NamedGroup} group - The named group to set.
+   */
+  set namedGroup(group: NamedGroup);
+
+  /**
+   * Gets the named group.
+   * @returns {NamedGroup} The current named group.
+   */
+  get namedGroup(): NamedGroup;
+
+  /**
+   * Gets the private key associated with the named group.
+   * @returns {Uint8Array} The private key.
+   */
+  get privateKey(): Uint8Array;
+
+  /**
+   * Gets the public key associated with the named group.
+   * @returns {Uint8Array} The public key.
+   */
+  get publicKey(): Uint8Array;
 }
 
 /**
