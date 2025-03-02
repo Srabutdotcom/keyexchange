@@ -32,16 +32,22 @@ export class ClientHello extends Uint8Array {
       const lengthOf = this.at(34);
       if (lengthOf == 0) {
          this.#legacy_session_id = this.subarray(34, 35);
+         this.#legacy_session_id.end = 35
       } else {
-         this.#legacy_session_id = this.subarray(35, 35 + lengthOf)
+         const end = 35 + lengthOf
+         this.#legacy_session_id = this.subarray(35, end);
+         this.#legacy_session_id.end = end;
       }
       return this.#legacy_session_id
    }
    get ciphers() {
-      this.#ciphers ||= /* _Cipher_suites.from */cipher_suites(this.subarray(35 + this.at(34)));
-      /* console.log(this.#ciphers);
-      const test = cipher_suites(this.subarray(35 + this.at(34))) 
-      console.log(test) */
+      if(this.#ciphers) return this.#ciphers;
+      const lengthOf = Uint16.from(this.subarray(this.legacy_session_id.end)).value;
+      if (lengthOf < 2) throw Error(`expected at list one cipher`)
+      const start = this.legacy_session_id.end + 2;
+      const end = start + lengthOf; 
+      this.#ciphers = parseItems(this, start, lengthOf, Cipher);//
+      this.#ciphers.end = end;
       return this.#ciphers;
    }
    /**
@@ -54,13 +60,14 @@ export class ClientHello extends Uint8Array {
     */
    get legacy_compression_methods() {
       if (this.#legacy_compression_methods) return this.#legacy_compression_methods
-      const offset = 34 + this.legacy_session_id.length + this.ciphers.length;
-      this.#legacy_compression_methods ||= this.subarray(offset, offset + 2);
+      const end = this.ciphers.end + 2;
+      this.#legacy_compression_methods ||= this.subarray(this.ciphers.end, end);
+      this.#legacy_compression_methods.end = end
       return this.#legacy_compression_methods
    }
    get extensions() {
       if (this.#extensions) return this.#extensions;
-      const copy = this.subarray(34 + this.legacy_session_id.length + this.ciphers.length + 2)
+      const copy = this.subarray(this.legacy_compression_methods.end)
       const lengthOf = Uint16.from(copy).value;
       if (lengthOf < 8) throw TypeError(`Length min. 8 bytes`)
       if (lengthOf > 2 ** 16 - 2) throw TypeError(`Length max: ${2 ** 16 - 2}`)
@@ -94,7 +101,7 @@ export class ClientHello extends Uint8Array {
    }
    get record(){
       const handshake = this.handshake
-      return safeuint8array(22, Version.legacy.byte, Uint16.fromValue(handshake.length), handshake)
+      return safeuint8array(22, Version.TLS10.byte, Uint16.fromValue(handshake.length), handshake)
    }
    set namedGroup(group){
       this.#namedGroup = group;
@@ -312,7 +319,7 @@ const _extensionList = safeuint8array(
    ) */
 )
 
-const sigAlgo = Extension.create(
+const _sigAlgo = Extension.create(
    ExtensionType.SIGNATURE_ALGORITHMS,
    new SignatureSchemeList(
       SignatureScheme.RSA_PSS_PSS_SHA256,
