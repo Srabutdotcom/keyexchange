@@ -3,7 +3,8 @@
   "specifiers": {
     "jsr:@std/assert@^1.0.2": "1.0.11",
     "jsr:@std/internal@^1.0.5": "1.0.5",
-    "jsr:@tls/enum@~0.8.1": "0.8.1",
+    "jsr:@tls/enum@~0.8.1": "0.8.3",
+    "jsr:@tls/enum@~0.8.3": "0.8.3",
     "jsr:@tls/extension@~0.4.3": "0.4.3",
     "jsr:@tls/struct@~0.3.8": "0.3.8",
     "npm:@noble/curves@^1.7.0": "1.8.1",
@@ -29,10 +30,19 @@
         "npm:@peculiar/x509"
       ]
     },
+    "@tls/enum@0.8.3": {
+      "integrity": "637b462cc57be254be410541e4f4a500674295b962dde896e952d19c5d2238ac",
+      "dependencies": [
+        "jsr:@tls/struct",
+        "npm:@noble/curves",
+        "npm:@noble/hashes",
+        "npm:@peculiar/x509"
+      ]
+    },
     "@tls/extension@0.4.3": {
       "integrity": "1637ba67f98fd4b00cb35626f4a0a619a35e5bc095b62b596f4d7fe9c899842f",
       "dependencies": [
-        "jsr:@tls/enum",
+        "jsr:@tls/enum@~0.8.1",
         "jsr:@tls/struct"
       ]
     },
@@ -198,7 +208,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@^1.0.2",
-      "jsr:@tls/enum@~0.8.1",
+      "jsr:@tls/enum@~0.8.3",
       "jsr:@tls/extension@~0.4.3",
       "jsr:@tls/struct@~0.3.8"
     ]

@@ -204,13 +204,16 @@ function parseExtension(extension) {
 
 export function buildClientHello(...serverNames) {
    // derived from _clientHelloHead
-   const clientHelloHead = Uint8Array.of(3, 3, 238, 224, 243, 110, 198, 197, 21, 0, 31, 62, 170, 168, 11, 114, 76, 23, 125, 57, 4, 182, 125, 129, 85, 232, 67, 131, 111, 67, 131, 169, 63, 58, 0, 0, 6, 19, 1, 19, 2, 19, 3, 1, 0);
+   // NOTE - it seems that smpt.gmail.com doesn't support TLS_AES_256_GCM_SHA384 {0x13,0x02}
+   const clientHelloHead = Uint8Array.of(3, 3, 238, 224, 243, 110, 198, 197, 21, 0, 31, 62, 170, 168, 11, 114, 76, 23, 125, 57, 4, 182, 125, 129, 85, 232, 67, 131, 111, 67, 131, 169, 63, 58, 0, 0, 2, 19, 1, /* 19, 3, 19, 2, */ 1, 0);
 
    // to make random 32
    crypto.getRandomValues(clientHelloHead.subarray(2, 2 + 32));
 
    // derived from _extensionList
-   const extension_1 = Uint8Array.of(0, 10, 0, 4, 0, 2, 0, 29, 0, 13, 0, 24, 0, 22, 8, 9, 8, 10, 8, 11, 8, 4, 8, 5, 8, 6, 4, 3, 5, 3, 6, 3, 8, 7, 8, 8, 0, 43, 0, 3, 2, 3, 4, 0, 45, 0, 2, 1, 1);
+   // NOTE only SignatureScheme 4,3,8,4,8,9 are succeed to decrypt smpt.gmail.com
+   const extension_1 = Uint8Array.of(0, 10, 0, 4, 0, 2, 0, 29, 0, 13, 0, 6, 0, 4, 4,3,8,4, 0, 43, 0, 3, 2, 3, 4, 0, 45, 0, 2, 1, 1);
+   // const extension_1 = Uint8Array.of(0, 10, 0, 4, 0, 2, 0, 29, 0, 13, 0, 4, 0, 2, 8, 4, /*8, 5, 8, 6, 8, 9, 8, 10, 8, 11, 4, 3, 5, 3, 6, 3, 8, 7, 8, 8, */ 0, 43, 0, 3, 2, 3, 4, 0, 45, 0, 2, 1, 1); 
 
    const namedGroup = NamedGroup.X25519;
 
@@ -226,7 +229,7 @@ export function buildClientHello(...serverNames) {
       ServerNameList.fromName(...serverNames)
    );
 
-   const exts = safeuint8array(extension_1, key_share, sni);
+   const exts = safeuint8array(extension_1, sni, key_share);
 
    const extensions = safeuint8array(Uint16.fromValue(exts.length), exts);
 
@@ -272,12 +275,12 @@ const _extensionList = safeuint8array(
    Extension.create(
       ExtensionType.SIGNATURE_ALGORITHMS,
       new SignatureSchemeList(
-         SignatureScheme.RSA_PSS_PSS_SHA256,
-         SignatureScheme.RSA_PSS_PSS_SHA384,
-         SignatureScheme.RSA_PSS_PSS_SHA512,
          SignatureScheme.RSA_PSS_RSAE_SHA256,
          SignatureScheme.RSA_PSS_RSAE_SHA384,
          SignatureScheme.RSA_PSS_RSAE_SHA512,
+         SignatureScheme.RSA_PSS_PSS_SHA256,
+         SignatureScheme.RSA_PSS_PSS_SHA384,
+         SignatureScheme.RSA_PSS_PSS_SHA512,
          SignatureScheme.ECDSA_SECP256R1_SHA256,
          SignatureScheme.ECDSA_SECP384R1_SHA384,
          SignatureScheme.ECDSA_SECP521R1_SHA512,
@@ -309,4 +312,20 @@ const _extensionList = safeuint8array(
    ) */
 )
 
+const sigAlgo = Extension.create(
+   ExtensionType.SIGNATURE_ALGORITHMS,
+   new SignatureSchemeList(
+      SignatureScheme.RSA_PSS_PSS_SHA256,
+      SignatureScheme.RSA_PSS_PSS_SHA384,
+      SignatureScheme.RSA_PSS_PSS_SHA512,
+      SignatureScheme.RSA_PSS_RSAE_SHA256,
+      SignatureScheme.RSA_PSS_RSAE_SHA384,
+      SignatureScheme.RSA_PSS_RSAE_SHA512,
+      SignatureScheme.ECDSA_SECP256R1_SHA256,
+      SignatureScheme.ECDSA_SECP384R1_SHA384,
+      SignatureScheme.ECDSA_SECP521R1_SHA512,
+      SignatureScheme.ED25519,
+      SignatureScheme.ED448
+   )
+)
 
