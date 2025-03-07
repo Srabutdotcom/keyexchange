@@ -1,5 +1,5 @@
 //@ts-self-types="../type/serverhello.d.ts"
-import { Cipher, ContentType, Extension, ExtensionType, HandshakeType, KeyShareServerHello, safeuint8array, Selected_version, Uint16, Uint24, Version } from "./dep.ts";
+import { Cipher, ContentType, Extension, ExtensionType, HandshakeType, KeyShareServerHello, safeuint8array, Selected_version, Uint16, Uint24, Version, KeyShareHelloRetryRequest } from "./dep.ts";
 
 
 export class ServerHello extends Uint8Array {
@@ -30,28 +30,32 @@ export class ServerHello extends Uint8Array {
       const lengthOf = this.at(34);
       if (lengthOf == 0) {
          this.#legacy_session_id_echo = this.subarray(34, 35);
+         this.#legacy_session_id_echo.end = 35
       } else {
-         this.#legacy_session_id_echo = this.subarray(35, 35 + lengthOf)
+         this.#legacy_session_id_echo = this.subarray(35, 35 + lengthOf);
+         this.#legacy_session_id_echo.end = 35 + lengthOf;
       }
       return this.#legacy_session_id_echo
    }
    get cipher() {
-      this.#cipher_suite ||= Cipher.from(this.subarray(35 + this.at(34)));
+      this.#cipher_suite ||= Cipher.from(this.subarray(this.legacy_session_id.end));
+      this.#cipher_suite.end = this.legacy_session_id.end + this.#cipher_suite.length;
       return this.#cipher_suite;
    }
    get legacy_compression_methods() {
-      const start = 35 + this.at(34) + 2
-      this.#legacy_compression_method ||= this.subarray(start, start + 1)
+      const start = this.cipher.end;
+      this.#legacy_compression_method ||= this.subarray(start, start + 1);
+      this.#legacy_compression_method.end = start + 1;
       return this.#legacy_compression_method
    }
    get extensions() {
       if (this.#extensions) return this.#extensions;
-      const copy = this.subarray(34 + this.legacy_session_id.length + this.cipher.length + 1)
+      const copy = this.subarray(this.legacy_compression_methods.end)
       const lengthOf = Uint16.from(copy).value;
       const output = new Map;
       for (let offset = 2; offset < lengthOf + 2;) {
          const extension = Extension.from(copy.subarray(offset)); offset += extension.length
-         parseExtension(extension);
+         parseExtension(extension, this.isHRR);
          output.set(extension.type, extension)
       }
       this.#extensions ||= output;
@@ -63,6 +67,9 @@ export class ServerHello extends Uint8Array {
    get record() {
       const handshake = this.handshake
       return safeuint8array(22, Version.legacy.byte, Uint16.fromValue(handshake.length), handshake)
+   }
+   get isHRR() {
+      return this.random.toString() == "207,33,173,116,229,154,97,17,190,29,140,2,30,101,184,145,194,162,17,22,122,187,140,94,7,158,9,226,200,168,51,156";
    }
 }
 
@@ -95,10 +102,10 @@ function sanitize(...args) {
    }
 }
 
-function parseExtension(extension) {
+function parseExtension(extension, isHRR) {
    switch (extension.type) {
       case ExtensionType.KEY_SHARE: {
-         extension.parser = KeyShareServerHello; break;
+         extension.parser = isHRR ? KeyShareHelloRetryRequest : KeyShareServerHello; break;
       }
       case ExtensionType.SUPPORTED_VERSIONS: {
          extension.parser = Selected_version; break;

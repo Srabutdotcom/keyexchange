@@ -1,247 +1,204 @@
 import {
   Cipher,
-  Constrained,
   Extension,
-  ExtensionType,
   NamedGroup,
   Version,
 } from "../src/dep.ts";
 
 /**
- * Represents a TLS 1.3 ClientHello message.
- *
- * This class constructs, parses, and manages the ClientHello message in the TLS handshake.
- */
-/**
- * Represents a TLS ClientHello message.
- * @class
- * @extends Uint8Array
+ * Represents a TLS ClientHello message as a Uint8Array.
  */
 export class ClientHello extends Uint8Array {
-  #version: Version | null;
-  #random: Uint8Array | null;
-  #legacy_session_id: Uint8Array | null;
-  #ciphers: Cipher_suites | null;
-  #legacy_compression_methods: Uint8Array | null;
-  #extensions: Map<ExtensionType, any> | null; // Use appropriate type for extension data
-  #namedGroup: NamedGroup;
+  /** @#*/
+  #version: Version;
+  /** @#*/
+  #random: Uint8Array;
+  /** @#*/
+  #legacy_session_id: Uint8Array & { end?: number };
+  /** @#*/
+  #ciphers: Cipher[] & { end?: number };
+  /** @#*/
+  #legacy_compression_methods: Uint8Array & { end?: number };
+  /** @#*/
+  #extensions: Map<number, Extension>;
+  /** @#*/
+  #groups: any;
 
-  /**
-   * Create a new ClientHello from serverNames
-   * @param {...string[]} serverNames
-   */
-  static build(...serverNames: string[]): ClientHello;
   /**
    * Creates a new ClientHello instance.
-   * @static
-   * @param {...any[]} args - The arguments to create the ClientHello.
-   *   - If a single Uint8Array is provided, it will be sanitized and used to create the new instance.
-   *   - Otherwise, the arguments are treated as byte values.
-   * @returns {ClientHello} A new ClientHello instance.
+   * @param {...any} args - Arguments to initialize the instance.
+   * @returns {ClientHello}
    */
   static create(...args: any[]): ClientHello;
+  static from: typeof ClientHello.create;
 
   /**
-   * Creates a new ClientHello instance (alias for `create`).
-   * @static
-   * @param {...any[]} args - The arguments to create the ClientHello.
-   *   - If a single Uint8Array is provided, it will be sanitized and used to create the new instance.
-   *   - Otherwise, the arguments are treated as byte values.
-   * @returns {ClientHello} A new ClientHello instance.
+   * @param {...any} args - Arguments to initialize the instance.
    */
-  static from(...args: any[]): ClientHello;
+  constructor(...args: any[]);
 
   /**
-   * Constructs a new ClientHello instance.
-   * @param {...(number | Uint8Array)} args - The arguments to create the ClientHello.
-   *   - If a single Uint8Array is provided, it will be sanitized and used to create the new instance.
-   *   - Otherwise, the arguments are treated as byte values.
-   */
-  constructor(...args: (number | Uint8Array)[]);
-
-  /**
-   * The TLS version.
-   * @readonly
-   * @type {Version}
+   * Gets the TLS version from the ClientHello message.
+   * @returns {Version}
    */
   get version(): Version;
 
   /**
-   * The client random value.
-   * @readonly
-   * @type {Uint8Array}
+   * Gets the random bytes from the ClientHello message.
+   * @returns {Uint8Array}
    */
   get random(): Uint8Array;
 
   /**
-   * The legacy session ID.
-   * @readonly
-   * @type {Uint8Array}
+   * Gets the legacy session ID from the ClientHello message.
+   * @returns {Uint8Array & { end?: number }}
    */
-  get legacy_session_id(): Uint8Array;
+  get legacy_session_id(): Uint8Array & { end?: number };
 
   /**
-   * The cipher suites.
-   * @readonly
-   * @type {Cipher_suites}
+   * Gets the cipher suites offered in the ClientHello message.
+   * @returns {Cipher[] & { end?: number }}
    */
-  get ciphers(): Cipher_suites;
+  get ciphers(): Cipher[] & { end?: number };
 
   /**
-   * The legacy compression methods (must be a single byte set to zero in TLS 1.3).
-   * @readonly
-   * @type {Uint8Array}
+   * Gets the legacy compression methods (must contain only `0`).
+   * @returns {Uint8Array & { end?: number }}
    */
-  get legacy_compression_methods(): Uint8Array;
+  get legacy_compression_methods(): Uint8Array & { end?: number };
 
   /**
-   * The TLS extensions.
-   * @readonly
-   * @type {Map<ExtensionType, any>}
+   * Gets the extensions included in the ClientHello message.
+   * @returns {Map<number, Extension>}
    */
-  get extensions(): Map<ExtensionType, any>;
+  get extensions(): Map<number, Extension>;
 
   /**
-   * Adds PSK binders to the ClientHello extensions.
-   * @param {Uint8Array} binders - The PSK binders to add.
-   * @returns {ClientHello} A new ClientHello instance with the added binders.
+   * Adds binders to the ClientHello message.
+   * @param {Uint8Array} binders - The binders to add.
+   * @returns {ClientHello}
    */
   addBinders(binders: Uint8Array): ClientHello;
 
   /**
-   * Gets the position of the PSK binders in the ClientHello message.
-   * @returns {number} The position of the PSK binders.
+   * Gets the position of the binder in the pre-shared key extension.
+   * @returns {number}
    */
   binderPos(): number;
 
   /**
-   * Handshake of ClientHello or ClientHello Message
-   * @readonly
-   * @type {Uint8Array}
+   * Gets the handshake message as a Uint8Array.
+   * @returns {Uint8Array}
    */
   get handshake(): Uint8Array;
 
   /**
-   * Record or TLSPlaintext of ClientHello Message
-   * @readonly
-   * @type {Uint8Array}
+   * Gets the full TLS record for the ClientHello message.
+   * @returns {Uint8Array}
    */
   get record(): Uint8Array;
 
   /**
-   * Sets the named group.
-   * @param {NamedGroup} group - The named group to set.
+   * Sets the supported groups in the ClientHello message.
+   * @param {NamedGroup} groups - The supported groups.
    */
-  set namedGroup(group: NamedGroup);
+  set groups(groups: NamedGroup);
 
   /**
-   * Gets the named group.
-   * @returns {NamedGroup} The current named group.
+   * Gets the supported groups in the ClientHello message.
+   * @returns {Map}
    */
-  get namedGroup(): NamedGroup;
-
-  /**
-   * Gets the private key associated with the named group.
-   * @returns {Uint8Array} The private key.
-   */
-  get privateKey(): Uint8Array;
-
-  /**
-   * Gets the public key associated with the named group.
-   * @returns {Uint8Array} The public key.
-   */
-  get publicKey(): Uint8Array;
+  get groups(): Map<NamedGroup, NamedGroup>;
 }
 
 /**
- * Represents the cipher suites in a ClientHello message.
+ * Creates a `ClientHelloForm` instance for the given server names.
+ * @param {string[]} serverNames - The list of server names.
+ * @returns {ClientHelloForm} The ClientHelloForm instance.
  */
-export class Cipher_suites extends Constrained {
-  /**
-   * List of supported cipher suites.
-   */
-  ciphers: Cipher[];
-
-  /**
-   * Creates a Cipher_suites instance from a Uint8Array.
-   * @param {Uint8Array} array - The byte array containing the cipher suites.
-   * @returns {Cipher_suites} - A new Cipher_suites instance.
-   */
-  static from(array: Uint8Array): Cipher_suites;
-
-  /**
-   * Constructs a new Cipher_suites instance.
-   * @param {...Cipher} ciphers - The list of supported cipher suites.
-   */
-  constructor(...ciphers: Cipher[]);
-}
+export function clientHelloForm(...serverNames: string[]): ClientHelloForm;
 
 /**
- * Represents extensions in a ClientHello message.
+ * Represents a TLS 1.3 ClientHello message builder.
  */
-declare class Extensions extends Constrained {
-  /**
-   * List of extensions in the ClientHello message.
-   */
-  extensions: Extension[];
+declare class ClientHelloForm {
+  #version: Uint8Array;
+  #random: Uint8Array;
+  #sessionId: Uint8Array;
+  #ciphers: Uint8Array;
+  #compression: Uint8Array;
+  #extensions: Map<number, Uint8Array>;
+  #groups: Map<number, NamedGroup>;
 
   /**
-   * Creates an Extensions instance from a list of Extension objects.
-   * @param {...Extension} extensions - The list of extensions.
-   * @returns {Extensions} - A new Extensions instance.
+   * Creates an instance of ClientHelloForm.
+   * @param {string[]} serverNames - The list of server names.
    */
-  static fromExtension(...extensions: Extension[]): Extensions;
+  constructor(...serverNames: string[]);
 
   /**
-   * Creates an Extensions instance from a Uint8Array.
-   * @param {Uint8Array} array - The byte array containing the extensions.
-   * @returns {Extensions} - A new Extensions instance.
+   * Builds the ClientHello message.
+   * @returns {ClientHello} The constructed ClientHello object.
    */
-  static from(array: Uint8Array): Extensions;
+  get build(): ClientHello;
+
+  /**
+   * Gets the protocol version.
+   */
+  get version(): Uint8Array;
+
+  /**
+   * Gets the random bytes.
+   */
+  get random(): Uint8Array;
+
+  /**
+   * Gets the session ID.
+   */
+  get sessionId(): Uint8Array;
+
+  /**
+   * Gets the cipher suites.
+   */
+  get ciphers(): Uint8Array;
+
+  /**
+   * Gets the compression methods.
+   */
+  get compression(): Uint8Array;
+
+  /**
+   * Gets the extensions.
+   */
+  get extensions(): Map<number, Uint8Array>;
+
+  /**
+   * Gets the X25519 group.
+   */
+  get x25519(): NamedGroup;
+
+  /**
+   * Gets the SECP256R1 group.
+   */
+  get p256(): NamedGroup;
+
+  /**
+   * Gets the SECP384R1 group.
+   */
+  get p384(): NamedGroup;
+
+  /**
+   * Gets the supported named groups.
+   */
+  get groups(): Map<number, NamedGroup>;
+
+  /**
+   * Updates the named group used for key exchange.
+   * @param {NamedGroup} group - The named group.
+   */
+  updateNamedGroup(group: NamedGroup): void;
 }
 
-/**
- * Represents the legacy session ID in a ClientHello message.
- */
-declare class Legacy_session_id extends Constrained {
-  /**
-   * Opaque session ID data.
-   */
-  opaque: Uint8Array;
 
-  /**
-   * Creates a Legacy_session_id instance from a Uint8Array.
-   * @param {Uint8Array} array - The byte array containing the session ID.
-   * @returns {Legacy_session_id} - A new Legacy_session_id instance.
-   */
-  static from(array: Uint8Array): Legacy_session_id;
 
-  /**
-   * Constructs a new Legacy_session_id instance.
-   * @param {Uint8Array} [opaque] - The opaque session ID data (default: empty).
-   */
-  constructor(opaque?: Uint8Array);
-}
 
-/**
- * Represents legacy compression methods in a ClientHello message.
- */
-declare class Legacy_compression_methods extends Constrained {
-  /**
-   * Opaque compression method data.
-   */
-  opaque: Uint8Array;
-
-  /**
-   * Creates a Legacy_compression_methods instance from a Uint8Array.
-   * @param {Uint8Array} array - The byte array containing compression methods.
-   * @returns {Legacy_compression_methods} - A new Legacy_compression_methods instance.
-   */
-  static from(array: Uint8Array): Legacy_compression_methods;
-
-  /**
-   * Constructs a new Legacy_compression_methods instance.
-   * @param {Uint8Array} [opaque] - The opaque compression method data (default: [0]).
-   */
-  constructor(opaque?: Uint8Array);
-}

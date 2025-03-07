@@ -1,4 +1,3 @@
-import { buildClientHello } from "../src/clienthello.js";
 import { ClientHello } from "../src/clienthello.js";
 import { Extension, ExtensionType, HexaDecimal, NamedGroup, NamedGroupList, PskKeyExchangeMode, PskKeyExchangeModes } from "../src/dep.ts"
 import { assertEquals } from "@std/assert"
@@ -97,9 +96,4 @@ const clientHelloRecord = HexaDecimal.fromString(`16 03 01 00 c4 01 00 00 c0 03 
 
 const test_1 = new ClientHello(clientHelloRecord);
 
-const clientHello_0 = buildClientHello('smtp.gmail1.com', 'smtp.gmail2.com');
-const handshake = clientHello_0.handshake;
-const record = clientHello_0.record;
-const privateKey = clientHello_0.extensions.get(ExtensionType.KEY_SHARE);
-debugger;
 

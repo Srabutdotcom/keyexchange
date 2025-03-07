@@ -1,97 +1,92 @@
-import { Cipher, ExtensionType, Version } from "../src/dep.ts";
+import { Cipher, Extension, Version } from "../src/dep.ts";
 
 /**
- * Represents a ServerHello message.
+ * Represents a TLS ServerHello message as a Uint8Array.
  */
 export class ServerHello extends Uint8Array {
-  #legacy_version: Version | null;
-  #random: Uint8Array | null;
-  #legacy_session_id_echo: Uint8Array | null;
-  #cipher_suite: Cipher | null;
-  #legacy_compression_method: Uint8Array | null;
-  #extensions: Map<ExtensionType, any> | null;
+  /** @type {Version} TLS version (legacy_version = 0x0303 for TLS 1.2) */
+  #legacy_version: Version;
+  /** @type {Uint8Array} Random value (32 bytes) */
+  #random: Uint8Array;
+  /** @type {Uint8Array} Legacy session ID echoed from ClientHello */
+  #legacy_session_id_echo: Uint8Array;
+  /** @type {Cipher} Cipher suite selected */
+  #cipher_suite: Cipher;
+  /** @type {Uint8Array} Legacy compression method */
+  #legacy_compression_method: Uint8Array;
+  /** @type {Map<number, Extension>} Extensions in ServerHello */
+  #extensions: Map<number, Extension>;
 
   /**
    * Creates a new ServerHello instance.
-   * @static
-   * @param {...any[]} args - The arguments to create the ServerHello.
-   *   - If a single Uint8Array is provided, it will be sanitized and used to create the new instance.
-   *   - Otherwise, the arguments are treated as byte values.
-   * @returns {ServerHello} A new ServerHello instance.
+   * @param {...any} args - Arguments for the ServerHello constructor.
+   * @returns {ServerHello}
    */
   static create(...args: any[]): ServerHello;
-
+  
   /**
-   * Creates a new ServerHello instance (alias for `create`).
-   * @static
-   * @param {...any[]} args - The arguments to create the ServerHello.
-   *   - If a single Uint8Array is provided, it will be sanitized and used to create the new instance.
-   *   - Otherwise, the arguments are treated as byte values.
-   * @returns {ServerHello} A new ServerHello instance.
+   * Alias for ServerHello.create.
    */
-  static from(...args: any[]): ServerHello;
+  static from: typeof ServerHello.create;
 
   /**
-   * Constructs a new ServerHello instance.
-   * @param {...any[]} args - The arguments to create the ServerHello.
-   *   - If a single Uint8Array is provided, it will be sanitized and used to create the new instance.
-   *   - Otherwise, the arguments are treated as byte values.
+   * Constructs a ServerHello instance.
+   * @param {...any} args - Arguments for the ServerHello constructor.
    */
   constructor(...args: any[]);
 
   /**
-   * The legacy TLS version (0x0303 for TLS 1.2).
-   * @readonly
-   * @type {Version}
+   * Gets the TLS version.
+   * @returns {Version}
    */
   get version(): Version;
 
   /**
-   * The server random value.
-   * @readonly
-   * @type {Uint8Array}
+   * Gets the random bytes.
+   * @returns {Uint8Array}
    */
   get random(): Uint8Array;
 
   /**
-   * The echoed legacy session ID.
-   * @readonly
-   * @type {Uint8Array}
+   * Gets the legacy session ID.
+   * @returns {Uint8Array}
    */
   get legacy_session_id(): Uint8Array;
 
   /**
-   * The chosen cipher suite.
-   * @readonly
-   * @type {Cipher}
+   * Gets the cipher suite.
+   * @returns {Cipher}
    */
   get cipher(): Cipher;
 
   /**
-   * The legacy compression method (should be zero in TLS 1.3).
-   * @readonly
-   * @type {Uint8Array}
+   * Gets the legacy compression methods.
+   * @returns {Uint8Array}
    */
   get legacy_compression_methods(): Uint8Array;
 
   /**
-   * The TLS extensions.
-   * @readonly
-   * @type {Map<ExtensionType, any>}
+   * Gets the extensions in the ServerHello message.
+   * @returns {Map<number, Extension>}
    */
-  get extensions(): Map<ExtensionType, any>;
+  get extensions(): Map<number, Extension>;
 
   /**
-   * Handshake of ServerHello or ServerHello Message
-   * @readonly
-   * @type {Uint8Array}
+   * Gets the handshake message.
+   * @returns {Uint8Array}
    */
   get handshake(): Uint8Array;
 
   /**
-   * Record or TLSPlaintext of ServerHello Message
-   * @readonly
-   * @type {Uint8Array}
+   * Gets the TLS record for the ServerHello message.
+   * @returns {Uint8Array}
    */
   get record(): Uint8Array;
+
+  /**
+   * Checks if the ServerHello message is a HelloRetryRequest (HRR).
+   * @returns {boolean}
+   */
+  get isHRR(): boolean;
 }
+
