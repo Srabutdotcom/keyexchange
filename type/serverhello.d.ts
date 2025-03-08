@@ -1,4 +1,4 @@
-import { Cipher, Extension, Version } from "../src/dep.ts";
+import { Cipher, Extension, NamedGroup, Version } from "../src/dep.ts";
 
 /**
  * Represents a TLS ServerHello message as a Uint8Array.
@@ -88,5 +88,17 @@ export class ServerHello extends Uint8Array {
    * @returns {boolean}
    */
   get isHRR(): boolean;
+
+  /**
+   * Sets the supported groups in the ClientHello message.
+   * @param {NamedGroup} group - The supported groups.
+   */
+  set group(group: NamedGroup);
+
+  /**
+   * Gets the supported groups in the ClientHello message.
+   * @returns {NamedGroup}
+   */
+  get group(): NamedGroup;
 }
 

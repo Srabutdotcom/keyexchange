@@ -9,6 +9,7 @@ export class ServerHello extends Uint8Array {
    #cipher_suite
    #legacy_compression_method
    #extensions
+   #group
    static create(...args) {
       return new ServerHello(...args)
    }
@@ -70,6 +71,12 @@ export class ServerHello extends Uint8Array {
    }
    get isHRR() {
       return this.random.toString() == "207,33,173,116,229,154,97,17,190,29,140,2,30,101,184,145,194,162,17,22,122,187,140,94,7,158,9,226,200,168,51,156";
+   }
+   set group(group){
+      this.#group = group;
+   }
+   get group(){
+      return this.#group;
    }
 }
 
