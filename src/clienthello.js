@@ -97,11 +97,15 @@ export class ClientHello extends Uint8Array {
       return psk.pos + 4 + psk.data.identities.length
    }
    get handshake(){
-      return safeuint8array(1, Uint24.fromValue(this.length), this)
+      const handshake = safeuint8array(1, Uint24.fromValue(this.length), this);
+      handshake.groups = this.groups;
+      return handshake;
    }
    get record(){
       const handshake = this.handshake
-      return safeuint8array(22, Version.TLS10.byte, Uint16.fromValue(handshake.length), handshake)
+      const record = safeuint8array(22, Version.TLS10.byte, Uint16.fromValue(handshake.length), handshake);
+      record.groups = this.groups;
+      return record
    }
    set groups(groups){
       this.#groups = groups;
