@@ -63,11 +63,17 @@ export class ServerHello extends Uint8Array {
       return this.#extensions
    }
    get handshake() {
-      return safeuint8array(2, Uint24.fromValue(this.length), this)
+      const handshake = safeuint8array(2, Uint24.fromValue(this.length), this)
+      handshake.group = this.group;
+      handshake.message = this;
+      return handshake;
    }
    get record() {
       const handshake = this.handshake
-      return safeuint8array(22, Version.legacy.byte, Uint16.fromValue(handshake.length), handshake)
+      const record = safeuint8array(22, Version.legacy.byte, Uint16.fromValue(handshake.length), handshake)
+      record.fragment = handshake;
+      record.group = handshake.group;
+      return record;
    }
    get isHRR() {
       return this.random.toString() == "207,33,173,116,229,154,97,17,190,29,140,2,30,101,184,145,194,162,17,22,122,187,140,94,7,158,9,226,200,168,51,156";

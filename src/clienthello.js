@@ -99,12 +99,14 @@ export class ClientHello extends Uint8Array {
    get handshake(){
       const handshake = safeuint8array(1, Uint24.fromValue(this.length), this);
       handshake.groups = this.groups;
+      handshake.message = this
       return handshake;
    }
    get record(){
       const handshake = this.handshake
       const record = safeuint8array(22, Version.TLS10.byte, Uint16.fromValue(handshake.length), handshake);
       record.groups = this.groups;
+      record.fragment = handshake;
       return record
    }
    set groups(groups){

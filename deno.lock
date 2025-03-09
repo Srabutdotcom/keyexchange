@@ -10,9 +10,7 @@
     "jsr:@tls/enum@~0.8.5": "0.8.6",
     "jsr:@tls/enum@~0.8.6": "0.8.7",
     "jsr:@tls/enum@~0.8.7": "0.8.7",
-    "jsr:@tls/extension@~0.4.1": "0.4.5",
-    "jsr:@tls/extension@~0.4.3": "0.4.5",
-    "jsr:@tls/extension@~0.4.5": "0.4.5",
+    "jsr:@tls/extension@~0.4.6": "0.4.6",
     "jsr:@tls/struct@~0.3.8": "0.3.8",
     "npm:@noble/curves@^1.7.0": "1.8.1",
     "npm:@noble/curves@^1.8.1": "1.8.1",
@@ -48,8 +46,8 @@
         "npm:@peculiar/x509"
       ]
     },
-    "@tls/extension@0.4.5": {
-      "integrity": "bac24820a942314f4a209b8ac448ce4de31a9ec13281c0c8a10800def5b3423b",
+    "@tls/extension@0.4.6": {
+      "integrity": "e961f8dd69130715677d79e5a88e1299a9e6e525350af23aa5ddd2e2b2cc420a",
       "dependencies": [
         "jsr:@tls/enum@~0.8.6",
         "jsr:@tls/struct"
@@ -218,7 +216,7 @@
     "dependencies": [
       "jsr:@std/assert@^1.0.2",
       "jsr:@tls/enum@~0.8.7",
-      "jsr:@tls/extension@~0.4.5",
+      "jsr:@tls/extension@~0.4.6",
       "jsr:@tls/struct@~0.3.8"
     ]
   }
