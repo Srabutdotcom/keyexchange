@@ -65,6 +65,7 @@ export class ServerHello extends Uint8Array {
    get handshake() {
       const handshake = safeuint8array(2, Uint24.fromValue(this.length), this)
       handshake.group = this.group;
+      handshake.cipher = this.cipher;
       handshake.message = this;
       return handshake;
    }
@@ -73,6 +74,7 @@ export class ServerHello extends Uint8Array {
       const record = safeuint8array(22, Version.legacy.byte, Uint16.fromValue(handshake.length), handshake)
       record.fragment = handshake;
       record.group = handshake.group;
+      record.cipher = handshake.cipher
       return record;
    }
    get isHRR() {
