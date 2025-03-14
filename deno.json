@@ -1,6 +1,6 @@
 {
   "name": "@tls/keyexchange",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "exports": "./src/mod.ts",
   "publish": {
     "exclude": ["dist/"]
@@ -14,8 +14,8 @@
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@^1.0.2",
-    "@tls/enum": "jsr:@tls/enum@^0.8.9",
-    "@tls/extension": "jsr:@tls/extension@^0.4.6",
+    "@tls/enum": "jsr:@tls/enum@^0.9.0",
+    "@tls/extension": "jsr:@tls/extension@^0.4.7",
     "@tls/struct": "jsr:@tls/struct@^0.3.8",
     "ec-key": "npm:ec-key@^0.0.6"
   }
