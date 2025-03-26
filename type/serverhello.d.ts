@@ -1,4 +1,5 @@
 import { Cipher, Extension, NamedGroup, Version } from "../src/dep.ts";
+import { ClientHello } from "../src/mod.ts";
 
 /**
  * Represents a TLS ServerHello message as a Uint8Array.
@@ -101,4 +102,7 @@ export class ServerHello extends Uint8Array {
    */
   get group(): NamedGroup;
 }
+
+
+
 

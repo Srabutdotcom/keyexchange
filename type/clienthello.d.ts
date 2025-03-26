@@ -1,6 +1,7 @@
 import {
   Cipher,
   Extension,
+  KeyShareClientHello,
   NamedGroup,
   Version,
 } from "../src/dep.ts";
@@ -22,8 +23,14 @@ export class ClientHello extends Uint8Array {
   /** @#*/
   #extensions: Map<number, Extension>;
   /** @#*/
-  #groups: any;
+  #groups: Map<NamedGroup, NamedGroup>;
 
+  #proto: Uint8Array;
+
+  #keyshares: KeyShareClientHello;
+
+  #sni: Extension;
+  
   /**
    * Creates a new ClientHello instance.
    * @param {...any} args - Arguments to initialize the instance.
@@ -109,6 +116,36 @@ export class ClientHello extends Uint8Array {
    * @returns {Map}
    */
   get groups(): Map<NamedGroup, NamedGroup>;
+
+  /**
+   * Sets proto - the default value of ClientHello from version to some extensions
+   */
+  set proto(proto: Uint8Array);
+
+  /**
+   * get proto - the default value of ClientHello from version to some extensions
+   */
+  get proto(): Uint8Array;
+
+  /**
+   * set keyshares - key_share_clientHello
+   */
+  set keyshares(keyshares: KeyShareClientHello);
+
+  /**
+   * get keyshares - key_share_clientHello
+   */
+  get keyshares(): KeyShareClientHello;
+
+  /**
+   * set Server Name Extension
+   */
+  set sni(sni: Extension);
+
+  /**
+   * get Server Name Extension
+   */
+  get sni(): Extension
 }
 
 /**
@@ -198,7 +235,3 @@ declare class ClientHelloForm {
    */
   updateNamedGroup(group: NamedGroup): void;
 }
-
-
-
-

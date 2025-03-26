@@ -10,7 +10,10 @@ export class ClientHello extends Uint8Array {
    #legacy_compression_methods
    #extensions
    #groups
-   
+   #proto
+   #keyshares
+   #sni
+
    static create(...args) {
       return new ClientHello(...args)
    }
@@ -41,11 +44,11 @@ export class ClientHello extends Uint8Array {
       return this.#legacy_session_id
    }
    get ciphers() {
-      if(this.#ciphers) return this.#ciphers;
+      if (this.#ciphers) return this.#ciphers;
       const lengthOf = Uint16.from(this.subarray(this.legacy_session_id.end)).value;
       if (lengthOf < 2) throw Error(`expected at list one cipher`)
       const start = this.legacy_session_id.end + 2;
-      const end = start + lengthOf; 
+      const end = start + lengthOf;
       this.#ciphers = parseItems(this, start, lengthOf, Cipher);//
       this.#ciphers.end = end;
       return this.#ciphers;
@@ -85,35 +88,55 @@ export class ClientHello extends Uint8Array {
       return this.#extensions;
    }
    addBinders(binders) {
-      const psk = this.extensions.get(ExtensionType.PRE_SHARED_KEY);
-      const lengthOf = psk.data.length + binders.length;
-      const uint16 = Uint16.fromValue(lengthOf)
+      const _psk = this.extensions.get(ExtensionType.PRE_SHARED_KEY);
+      //const lengthOf = psk.data.length + binders.length;
+      //const uint16 = Uint16.fromValue(lengthOf)
       const array = safeuint8array(this, binders);
-      array.set(uint16, psk.pos + 2);
+      //array.set(uint16, psk.pos + 2);
       return new ClientHello(array)
    }
    binderPos() {
       const psk = this.extensions.get(ExtensionType.PRE_SHARED_KEY);
       return psk.pos + 4 + psk.data.identities.length
    }
-   get handshake(){
+   get handshake() {
       const handshake = safeuint8array(1, Uint24.fromValue(this.length), this);
       handshake.groups = this.groups;
       handshake.message = this
       return handshake;
    }
-   get record(){
+   get record() {
       const handshake = this.handshake
       const record = safeuint8array(22, Version.TLS10.byte, Uint16.fromValue(handshake.length), handshake);
       record.groups = this.groups;
       record.fragment = handshake;
       return record
    }
-   set groups(groups){
+   set groups(groups) {
       this.#groups = groups;
    }
-   get groups(){
+   get groups() {
+      if (this.#groups) return this.#groups;
+      this.#groups ||= this.extensions.get(ExtensionType.KEY_SHARE).data.keyShareEntries
       return this.#groups;
+   }
+   set proto(proto) {
+      this.#proto = proto;
+   }
+   get proto() {
+      return this.#proto;
+   }
+   set keyshares(keyshares) {
+      this.#keyshares = keyshares;
+   }
+   get keyshares() {
+      return this.#keyshares;
+   }
+   set sni(sni) {
+      this.#sni = sni;
+   }
+   get sni() {
+      return this.#sni;
    }
 }
 

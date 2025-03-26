@@ -27,7 +27,7 @@ Deno.test("ClientHello", () => {
 // RECORD_SIZE_LIMIT
 
 // from RFC 8448 sample
-const clientHelloRFC8448 = HexaDecimal.fromString(`03 03 cb
+export const clientHelloRFC8448 = HexaDecimal.fromString(`03 03 cb
    34 ec b1 e7 81 63 ba 1c 38 c6 da cb 19 6a 6d ff a2 1a 8d 99 12
    ec 18 a2 ef 62 83 02 4d ec e7 00 00 06 13 01 13 03 13 02 01 00
    00 91 00 00 00 0b 00 09 00 00 06 73 65 72 76 65 72 ff 01 00 01
