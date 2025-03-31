@@ -18,7 +18,17 @@ const groups = new Map([
    [x448, x448]
 ])
 
-function clientHelloProto(sessionId) {
+function clientHelloProto(
+   option = {
+      sessionId:Uint8Array.of(0), 
+      signatureSchemeList:Uint8Array.of(4, 3, 5, 3, 8, 4, 8, 5, 8, 7, 8, 8, 8, 9, 8, 10)
+   }
+) {
+   const { 
+      sessionId = Uint8Array.of(0) , 
+      signatureSchemeList = Uint8Array.of(4, 3, 5, 3, 8, 4, 8, 5, 8, 7, 8, 8, 8, 9, 8, 10) 
+   } = option; 
+   
    const first = Uint8Array.of(
       3, 3,                            // ProtocolVersion legacy_version = 0x0303;    /* TLS v1.2 */
       1, 2, 3, 4, 5, 6, 7, 8,          // opaque Random[32];
@@ -26,31 +36,36 @@ function clientHelloProto(sessionId) {
       17, 18, 19, 20, 21, 22, 23, 24,
       25, 26, 27, 28, 29, 30, 31, 32,)
                                        // opaque legacy_session_id<0..32>; pos = 34;  
-   sessionId = sessionId ? sessionId.slice(0, 32) : sessionId
-   const legacy_session_id = sessionId ? Uint8Array.of(sessionId.length, sessionId) : Uint8Array.of(0);
+   const legacy_session_id = sessionId.length > 1 ? Uint8Array.of(sessionId.length, sessionId) : sessionId;
 
-   const last = Uint8Array.of(
+   const mid = Uint8Array.of(
       0, 6,                            // CipherSuite cipher_suites<2..2^16-2>;
       19, 1, 19, 2, 19, 3,
       1, 0,                            // opaque legacy_compression_methods<1..2^8-1>;
       1, 2,                            // extensions length; pos = 45
-      0, 10,                           // supported_groups; length:  16
-      0, 12,
-      0, 10,
-      0, 29, 0, 23, 0, 24, 0, 25, 0, 30,
-      0, 13,                           // signature_algoritms; length:  22
-      0, 18,
-      0, 16,
-      4, 3, 5, 3, 8, 4, 8, 5, 8, 7, 8, 8, 8, 9, 8, 10,
       0, 43,                           // supported_versions; length:  7
       0, 3,
       2,
       3, 4,
       0, 45,                           // psk_key_exchange_modes; length:  6 
       0, 2,
-      1, 1
+      1, 1,
+      0, 10,                           // supported_groups; length:  16
+      0, 12,
+      0, 10,
+      0, 29, 0, 23, 0, 24, 0, 25, 0, 30,
    )
-   return safeuint8array(first, legacy_session_id, last)
+   const signatureSchemes = signatureSchemeList.length > 0 ? signatureSchemeList : 
+   Array.isArray(signatureSchemeList) ? safeuint8array(...signatureSchemeList) : signatureSchemeList;
+   
+   const signatureSchemeExtension = Uint8Array.of(
+      0, 13,                           // signature_algoritms; length:  22
+      0, signatureSchemes.length + 2,
+      0, signatureSchemes.length,
+      ...Array.from(signatureSchemes)
+   )
+
+   return safeuint8array(first, legacy_session_id, mid, signatureSchemeExtension)
 }
 
 function key_share_clientHello() {
@@ -112,13 +127,6 @@ function sni_extension(...hostNames) {
    )
 }
 
-export function clientHelloGenWithSessionId(sessionId, ...serverNames) {
-   const proto = clientHelloProto(sessionId);
-   const keyShares = key_share_clientHello();
-   const sni = sni_extension(...serverNames)
-   return clientHelloCore(proto, keyShares, sni)
-}
-
 function clientHelloCore(proto, keyShares, sni) {
    const initial = safeuint8array(proto, keyShares, sni);
    const lengthOfExtensions = Uint16.fromValue(initial.length - 47);
@@ -133,8 +141,17 @@ function clientHelloCore(proto, keyShares, sni) {
    return clientHello
 }
 
-export function clientHelloGen(...serverNames) {
-   return clientHelloGenWithSessionId(null, ...serverNames)
+export function clientHelloGen(option = {
+   sessionId:Uint8Array.of(0), 
+   signatureSchemeList:Uint8Array.of(4, 3, 5, 3, 8, 4, 8, 5, 8, 7, 8, 8, 8, 9, 8, 10),
+   serverNames : []
+}) {
+   const proto = clientHelloProto(option);
+   const keyShares = key_share_clientHello();
+   
+   const { serverNames } = option;
+   const sni = serverNames.length > 0 ? sni_extension(...serverNames) : null
+   return clientHelloCore(proto, keyShares, ...(sni&&[sni]))
 }
 
 export function updateClientHellogroup(clientHello, group) {

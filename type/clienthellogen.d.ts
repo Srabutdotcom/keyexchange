@@ -1,21 +1,20 @@
 import { ClientHello } from "../src/mod.ts";
 
 /**
- * Generates a ClientHello message with the given server names.
- * 
- * @param {string[]} serverNames - List of server names to include in the SNI extension.
- * @returns {ClientHello} - The generated ClientHello object.
+ * Generates a TLS 1.3 ClientHello message.
+ *
+ * @param {Object} option - Configuration options for the ClientHello.
+ * @param {Uint8Array} [option.sessionId=Uint8Array.of(0)] - The session ID.
+ * @param {Uint8Array} [option.signatureSchemeList=Uint8Array.of(4, 3, 5, 3, 8, 4, 8, 5, 8, 7, 8, 8, 8, 9, 8, 10)] - List of supported signature schemes.
+ * @param {string[]} [option.serverNames=[]] - List of server names for the SNI extension.
+ * @returns {Uint8Array} The encoded ClientHello message.
  */
-export function clientHelloGen(...serverNames: string[]): ClientHello;
-
-/**
- * Generates a ClientHello message with a session ID and server names.
- * 
- * @param {Uint8Array} sessionId - The session ID to include in the ClientHello message.
- * @param {string[]} serverNames - List of server names to include in the SNI extension.
- * @returns {ClientHello} - The generated ClientHello object.
- */
-export function clientHelloGenWithSessionId(sessionId: Uint8Array, ...serverNames: string[]): ClientHello;
+export function clientHelloGen(option?: {
+   sessionId?: Uint8Array;
+   signatureSchemeList?: Uint8Array;
+   serverNames?: string[];
+ }): ClientHello;
+ 
 
 /**
  * Updates the ClientHello message with a new key exchange group.

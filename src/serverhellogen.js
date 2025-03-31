@@ -30,7 +30,7 @@ export function serverHelloGen(clientHello) {
       Uint8Array.of(207, 33, 173, 116, 229, 154, 97, 17, 190, 29, 140, 2, 30, 101, 184, 145, 194, 162, 17, 22, 122, 187, 140, 94, 7, 158, 9, 226, 200, 168, 51, 156)
 
    // legacy_session_id_echo<0..32>;  
-   const legacy_session_id_echo = legacy_session_id ? Uint8Array.of(legacy_session_id.length, legacy_session_id) : Uint8Array.of(0);
+   const legacy_session_id_echo = (legacy_session_id.length > 1) ? Uint8Array.of(legacy_session_id.length, legacy_session_id) : Uint8Array.of(0);
    const cipher = preferredCiphers.intersection(ciphers).values().next().value;
    const legacy_compression_method = 0
 
@@ -41,7 +41,7 @@ export function serverHelloGen(clientHello) {
       version,
       random,
       legacy_session_id_echo,
-      cipher,
+      cipher.byte,
       legacy_compression_method,
       Uint16.fromValue(6 + keyshare_serverHello.length),
       selected_version_extension,
@@ -51,11 +51,11 @@ export function serverHelloGen(clientHello) {
    return ServerHello.from(serverHello)
 }
 
-const selected_version_extension = Extension.create(
+/* const selected_version_extension = Extension.create(
    ExtensionType.SUPPORTED_VERSIONS,
    Uint8Array.of(3, 3)
 )
-console.log("version", selected_version_extension.toString())
+console.log("version", selected_version_extension.toString()) */
 
 function keyshare_extension(group) {
    if (group) {
@@ -69,6 +69,7 @@ function keyshare_extension(group) {
       NamedGroup.X25519.byte
    )
 }
-
-const _keyshare = keyshare_extension(/* NamedGroup.X25519 */);
+/* 
+const _keyshare = keyshare_extension();
 console.log("keyshare", _keyshare.toString())
+ */
