@@ -1,8 +1,8 @@
 import { HexaDecimal } from "../src/dep.ts";
-import { ServerHello } from "../src/serverhello.js";
+import { ServerHello } from "../type/serverhello.js";
 import { assertEquals } from "@std/assert"
-import { serverHelloGen } from "../src/serverhellogen.js";
-import { clientHelloRFC8448 } from "./clienthello_test.js";
+import { serverHelloGen } from "../type/serverhellogen.js";
+import { clientHelloRFC8448 } from "./clienthellotest.js";
 
 Deno.test("ServerHello", ()=>{
    const serverHello = HexaDecimal.fromString(`03 03 a6

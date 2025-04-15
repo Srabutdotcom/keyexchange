@@ -1,6 +1,7 @@
 //@ts-self-types = "../type/clienthello.d.ts"
-import { Cipher, Constrained, ContentType, Cookie, EarlyDataIndication, Extension, ExtensionType, HandshakeType, KeyShareClientHello, NamedGroup, NamedGroupList, OfferedPsks, Padding, parseItems, PskKeyExchangeMode, PskKeyExchangeModes, RecordSizeLimit, safeuint8array, ServerNameList, SignatureScheme, Supported_signature_algorithms, Uint16, Uint24, Version } from "./dep.ts";
+import { Cipher, Constrained, Cookie, EarlyDataIndication, Extension, ExtensionType, KeyShareClientHello, NamedGroup, NamedGroupList, OfferedPsks, Padding, PskKeyExchangeMode, PskKeyExchangeModes, RecordSizeLimit, safeuint8array, ServerNameList, SignatureScheme, SignatureSchemeList, Uint16, Uint24, Version } from "./dep.ts";
 import { Versions } from "@tls/extension"
+import { parseItems } from "./utils.js"
 
 export class ClientHello extends Uint8Array {
    #version
@@ -19,13 +20,14 @@ export class ClientHello extends Uint8Array {
    }
    static from = ClientHello.create
    constructor(...args) {
-      args = (args.at(0) instanceof Uint8Array) ? sanitize(...args) : args
+      args = (args[0] instanceof Uint8Array) ? sanitize(args[0]) : args
       super(...args)
    }
    get version() {
       this.#version ||= Version.from(this.subarray(0, 2))
       return this.#version
    }
+   get legacy_version() { return this.version }
    get random() {
       this.#random ||= this.subarray(2, 34);
       return this.#random;
@@ -43,6 +45,7 @@ export class ClientHello extends Uint8Array {
       }
       return this.#legacy_session_id
    }
+   get session_id() { return this.legacy_session_id }
    get ciphers() {
       if (this.#ciphers) return this.#ciphers;
       const lengthOf = Uint16.from(this.subarray(this.legacy_session_id.end)).value;
@@ -80,12 +83,32 @@ export class ClientHello extends Uint8Array {
          const extension = Extension.from(copy.subarray(offset)); offset += extension.length
          parseExtension(extension);
          extension.pos = offset + 2;
-         output.set(extension.type, extension)
+         output.set(extension.type, extension.data)
          if (offset >= lengthOf) break;
          if (offset >= copy.length) break;
       }
       this.#extensions ||= output;
       return this.#extensions;
+   }
+   get supported_versions(){
+      const data = this.extensions.get(ExtensionType.SUPPORTED_VERSIONS);
+      return Versions.from(data).versions;
+   }
+   get psk_key_exchange_modes(){
+      const data = this.extensions.get(ExtensionType.PSK_KEY_EXCHANGE_MODES);
+      return PskKeyExchangeModes.from(data).ke_modes
+   }
+   get supported_groups(){
+      const data = this.extensions.get(ExtensionType.SUPPORTED_GROUPS);
+      return NamedGroupList.from(data).named_group_list
+   }
+   get signature_algorithms(){
+      const data = this.extensions.get(ExtensionType.SIGNATURE_ALGORITHMS);
+      return SignatureSchemeList.from(data).supported_signature_algorithms
+   }
+   get server_names(){
+      const data = this.extensions.get(ExtensionType.SERVER_NAME);
+      return [...ServerNameList.from(data).serverNames].map(e=>e.name)
    }
    addBinders(binders) {
       const _psk = this.extensions.get(ExtensionType.PRE_SHARED_KEY);
@@ -140,33 +163,39 @@ export class ClientHello extends Uint8Array {
    }
 }
 
-function sanitize(...args) {
-   try {
-      if (Version.from(args[0]) instanceof Version) return args
-      throw Error
-   } catch (_error) {
-      try {
-         if (HandshakeType.from(args[0]) == HandshakeType.CLIENT_HELLO) {
-            const lengthOf = Uint24.from(args[0].subarray(1)).value;
-            return [args[0].subarray(4, 4 + lengthOf)]
-         }
-         throw Error
-      } catch (_error) {
-         try {
-            const contentType = ContentType.from(args[0]);
-            const handshakeType = HandshakeType.from(args[0].subarray(5));
-            const lengthOf = Uint24.from(args[0].subarray(6)).value;
-            const conditions = [
-               contentType == ContentType.HANDSHAKE,
-               handshakeType == HandshakeType.CLIENT_HELLO
-            ]
-            if (conditions.every(e => e == true)) return [args[0].subarray(9, 9 + lengthOf)]
-            throw Error;
-         } catch (error) {
-            throw error;
-         }
-      }
-   }
+function sanitize(data) {
+   return [sanitizeClientHello(data)]
+}
+
+function sanitizeClientHello(data) {
+   let offset = 0;
+   // client_version (2 bytes) + random (32 bytes)
+   if (Version.from(data).value < 0x0300) return Alert.fromAlertDescription(AlertDescription.PROTOCOL_VERSION)
+   offset += 2 + 32;
+
+   // session_id
+   const sessionIdLen = data[offset];
+   if (sessionIdLen > 32) return Alert.fromAlertDescription(AlertDescription.UNEXPECTED_MESSAGE)
+   offset += 1 + sessionIdLen;
+
+   // cipher_suites
+   const cipherSuitesLen = (data[offset] << 8) | data[offset + 1];
+   const _ciphers = parseItems(data, offset + 2, cipherSuitesLen, Cipher);
+   offset += 2 + cipherSuitesLen;
+
+   // compression_methods
+   const compressionMethodsLen = data[offset];
+   if (compressionMethodsLen !== 1) return Alert.fromAlertDescription(AlertDescription.UNEXPECTED_MESSAGE)
+   offset += 1 + compressionMethodsLen;
+
+   // extensions
+   const extensionsLen = (data[offset] << 8) | data[offset + 1];
+   const _extensions = parseItems(data, offset + 2, extensionsLen, Extension);
+   offset += 2;
+
+   if (offset + extensionsLen > data.length) return Alert.fromAlertDescription(AlertDescription.UNEXPECTED_MESSAGE);
+
+   return data.subarray(0, offset + extensionsLen);
 }
 
 //const test_0 = new ClientHello(HandshakeType.CLIENT_HELLO.Uint8)
@@ -204,7 +233,7 @@ function parseExtension(extension) {
          extension.parser = Versions; break;
       }
       case ExtensionType.SIGNATURE_ALGORITHMS: {
-         extension.parser = Supported_signature_algorithms; break;
+         extension.parser = SignatureSchemeList; break;
       }
       case ExtensionType.SERVER_NAME: {
          extension.parser = extension.data.length ? ServerNameList : undefined; break;
